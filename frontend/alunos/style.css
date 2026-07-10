@@ -1,0 +1,56 @@
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+body { background-color: #05101e; color: #ffffff; padding-bottom: 20px; }
+
+.main-header {
+    background-color: #0b2545; padding: 15px 20px; display: flex;
+    justify-content: space-between; align-items: center; border-bottom: 3px solid #ba181b;
+}
+.btn-voltar { color: white; text-decoration: none; font-size: 0.9rem; background-color: #13335c; padding: 6px 12px; border-radius: 6px; }
+.btn-add { background-color: #ba181b; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.6rem; cursor: pointer; }
+
+.filtros-container { padding: 15px; background-color: #0b2545; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+.filtros-container input, .filtros-container select { width: 100%; height: 42px; background-color: #13335c; border: 1px solid #1d4474; border-radius: 6px; color: white; padding: 0 10px; }
+.filtros-seletores { display: flex; gap: 10px; }
+
+.alunos-lista { padding: 0 15px; display: flex; flex-direction: column; gap: 15px; }
+.aluno-card { background-color: #0b2545; border: 1px solid #13335c; border-radius: 12px; padding: 15px; }
+.aluno-header { display: flex; align-items: center; margin-bottom: 12px; position: relative; }
+.aluno-foto-perfil { width: 50px; height: 50px; background-color: #13335c; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; border: 2px solid #ba181b; }
+.aluno-foto-perfil img { width: 100%; height: 100%; object-fit: cover; }
+.badge-categoria { background-color: #ba181b; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+.aluno-estrelas { position: absolute; right: 0; top: 5px; color: #ffd700; font-size: 0.75rem; }
+.aluno-detalhes p { font-size: 0.85rem; color: #dae3ef; margin-bottom: 4px; }
+.badge-doc { color: #25d366; background-color: rgba(37, 211, 102, 0.1); padding: 1px 4px; border-radius: 3px; font-size: 0.75rem; }
+.alerta-saude { color: #ffb703 !important; background-color: rgba(255, 183, 3, 0.1); padding: 4px; border-radius: 4px; display: inline-block; }
+.aluno-acoes { margin-top: 12px; display: flex; gap: 8px; }
+.btn-acao { flex: 1; height: 36px; border: none; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+.btn-ligar { background-color: #25d366; color: white; text-align: center; text-decoration: none; line-height: 36px; }
+.btn-editar { background-color: #13335c; color: white; flex: 0 0 50px; }
+.btn-excluir { background-color: #ba181b; color: white; flex: 0 0 40px; }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); justify-content: center; align-items: flex-end; z-index: 1000; }
+.modal-content { background-color: #0b2545; width: 100%; max-height: 95vh; border-radius: 20px 20px 0 0; padding: 20px; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.btn-fechar { background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
+
+.tab-menu { display: flex; background-color: #13335c; border-radius: 8px; padding: 4px; margin-bottom: 15px; }
+.tab-btn { flex: 1; background: none; border: none; color: #dae3ef; padding: 10px 0; font-weight: bold; font-size: 0.85rem; cursor: pointer; border-radius: 6px; }
+.tab-btn.active { background-color: #ba181b; color: white; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.foto-upload-container { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 15px; background: #13335c; padding: 10px; border-radius: 10px; }
+.avatar-preview { width: 70px; height: 70px; background-color: #0b2545; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2rem; overflow: hidden; border: 2px solid #ba181b; }
+.avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+.btn-upload-foto { background-color: #ba181b; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
+
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: #dae3ef; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; background-color: #13335c; border: 1px solid #1d4474; border-radius: 6px; color: white; padding: 10px; font-size: 0.95rem; outline: none; }
+.form-group input[readonly] { background-color: #05101e; color: #ffb703; border-color: #13335c; font-weight: bold; }
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+
+.checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 10px; background-color: #13335c; padding: 10px; border-radius: 6px; }
+.checkbox-group input { width: 20px; height: 20px; }
+.safety-check { border-left: 4px solid #ba181b; }
+.btn-salvar-aluno { width: 100%; height: 48px; background-color: #ba181b; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; margin-top: 15px; cursor: pointer; }
