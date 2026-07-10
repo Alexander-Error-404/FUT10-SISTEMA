@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUT10 - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-area">
+            <img src="logo.png" alt="Brasão FUT10" class="brasao-img">
+            <h1>FUT10</h1>
+            <p>Escolinha de Futebol Infantil</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="usuario">Selecione seu usuário:</label>
+                <select id="usuario" required>
+                    <option value="" disabled selected>Escolha quem está acessando...</option>
+                    <option value="alessandra">Alessandra (Cantina/Financeiro)</option>
+                    <option value="vinicius">Vinícius (Campo/Treinos)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha de Acesso:</label>
+                <input type="password" id="senha" placeholder="Digite sua senha" required>
+            </div>
+
+            <button type="submit" class="btn-login">Entrar no Sistema</button>
+        </form>
+        <div id="msg-erro" class="erro-oculto"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
