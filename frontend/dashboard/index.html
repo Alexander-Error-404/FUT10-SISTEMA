@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUT10 - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="user-info">
+            <span class="welcome">Bem-vindo(a),</span>
+            <h2 id="nome-usuario">Carregando...</h2>
+        </div>
+        <button id="btn-sair" class="btn-sair">Sair</button>
+    </header>
+
+    <main class="dashboard-container">
+        <h3>Painel de Controle</h3>
+        
+        <div class="menu-grid">
+            <a href="../alunos/index.html" class="menu-card menu-ambos">
+                <div class="card-icon">👥</div>
+                <div class="card-info">
+                    <h4>Gerenciar Alunos</h4>
+                    <p>Cadastro, categorias e dados dos pais</p>
+                </div>
+            </a>
+
+            <a href="../chamada/index.html" class="menu-card menu-vinicius">
+                <div class="card-icon">📋</div>
+                <div class="card-info">
+                    <h4>Fazer Chamada</h4>
+                    <p>Controle de presença no campo</p>
+                </div>
+            </a>
+
+            <a href="../barzinho/index.html" class="menu-card menu-alessandra">
+                <div class="card-icon">🍿</div>
+                <div class="card-info">
+                    <h4>Barzinho / Cantina</h4>
+                    <p>Vendas rápidas e controle de fiado</p>
+                </div>
+            </a>
+
+            <a href="../financeiro/index.html" class="menu-card menu-alessandra">
+                <div class="card-icon">💰</div>
+                <div class="card-info">
+                    <h4>Financeiro</h4>
+                    <p>Mensalidades e lista de caloteiros</p>
+                </div>
+            </a>
+
+            <a href="../treinos/index.html" class="menu-card menu-vinicius">
+                <div class="card-icon">⚽</div>
+                <div class="card-info">
+                    <h4>Campo Tático</h4>
+                    <p>Posicionamento e treinos interativos</p>
+                </div>
+            </a>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

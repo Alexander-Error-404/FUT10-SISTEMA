@@ -1,0 +1,108 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #05101e;
+    color: #ffffff;
+    padding-bottom: 30px;
+}
+
+.main-header {
+    background-color: #0b2545;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #ba181b;
+}
+
+.welcome {
+    font-size: 0.85rem;
+    color: #dae3ef;
+}
+
+#nome-usuario {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.btn-sair {
+    background-color: transparent;
+    border: 1px solid #ba181b;
+    color: #ffffff;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-sair:active {
+    background-color: #ba181b;
+}
+
+.dashboard-container {
+    padding: 20px;
+}
+
+.dashboard-container h3 {
+    margin-bottom: 20px;
+    color: #dae3ef;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.menu-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.menu-card {
+    background-color: #0b2545;
+    border: 2px solid #13335c;
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #ffffff;
+    transition: transform 0.1s, border-color 0.2s;
+}
+
+.menu-card:active {
+    transform: scale(0.98);
+    border-color: #ba181b;
+    background-color: #13335c;
+}
+
+.card-icon {
+    font-size: 2rem;
+    margin-right: 18px;
+    background-color: #13335c;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+}
+
+.card-info h4 {
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.card-info p {
+    font-size: 0.85rem;
+    color: #dae3ef;
+}
+
+/* REGRA DA MÁGICA: Oculta o que não pertence ao usuário ativo */
+.ocultar {
+    display: none !important;
+}
