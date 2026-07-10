@@ -16,7 +16,9 @@
     <section class="filtros-container">
         <input type="text" id="busca-nome" placeholder="🔍 Buscar aluno pelo nome...">
         <div class="filtros-seletores">
-            <input type="text" id="filtro-turma-busca" placeholder="Filtrar por Turma...">
+            <select id="filtro-turma-busca">
+                <option value="">Selecione uma turma...</option>
+            </select>
             <select id="filtro-habilidade">
                 <option value="">Todas Habilidades</option>
                 <option value="⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ (10)</option>
@@ -25,28 +27,8 @@
         </div>
     </section>
 
-    <main class="alunos-lista" id="alunos-lista">
-        <div class="aluno-card">
-            <div class="aluno-header">
-                <div class="aluno-foto-perfil" id="preview-card-foto">👦</div>
-                <div class="aluno-titulo">
-                    <h4>Lucas Silva</h4>
-                    <span class="badge-categoria">Turma: Terça 19h (8 anos)</span>
-                </div>
-                <div class="aluno-estrelas">⭐⭐⭐⭐⭐⭐⭐⭐</div>
-            </div>
-            <div class="aluno-detalhes">
-                <p><strong>Posição:</strong> Meia-Atacante | <strong>Retirada por:</strong> Maria (Mãe)</p>
-                <p><strong>Matrícula:</strong> 10/02/2026 | 🩺 <strong class="badge-doc">Atestado OK</strong> | 📸 <strong class="badge-doc">Uso Imagem OK</strong></p>
-                <p class="alerta-saude">⚠️ <strong>Saúde:</strong> Usa bombinha (Asma)</p>
-            </div>
-            <div class="aluno-acoes">
-                <a href="tel:16999999999" class="btn-acao btn-ligar">📞 Ligar Pais</a>
-                <button class="btn-acao btn-editar">✏️</button>
-                <button class="btn-acao btn-excluir">🗑️</button>
-            </div>
-        </div>
-    </main>
+    <main class="alunos-lista" id="alunos-lista"></main>
+
     <div id="modal-aluno" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -61,65 +43,76 @@
             </div>
 
             <form id="formAluno">
+                <input type="hidden" id="aluno-id">
+
                 <div id="dados-tecnicos" class="tab-content active">
                     <div class="foto-upload-container">
                         <div class="avatar-preview" id="foto-preview">📸</div>
-                        <label class="btn-upload-foto">Selecionar Foto do Aluno<input type="file" accept="image/*" id="foto-aluno" style="display:none;"></label>
+                        <label class="btn-upload-foto">Selecionar Foto<input type="file" accept="image/*" id="foto-aluno" style="display:none;"></label>
                     </div>
-                    <div class="form-group"><label>Nome Completo:</label><input type="text" required></div>
+                    <div class="form-group"><label>Nome Completo:</label><input type="text" id="aluno-nome" required></div>
                     <div class="form-row">
                         <div class="form-group"><label>Data Nascimento:</label><input type="date" id="data-nasc" required></div>
-                        <div class="form-group"><label>Idade Calculada:</label><input type="text" id="idade-aluno" readonly placeholder="Calculada automáticamente"></div>
+                        <div class="form-group"><label>Idade Calculada:</label><input type="text" id="idade-aluno" readonly placeholder="Calculada automaticamente"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group"><label>Turma (Digitação Manual):</label><input type="text" placeholder="Ex: Terça e Quinta às 19h" required></div>
+                        <div class="form-group"><label>Turma (Digitação Manual):</label><input type="text" id="aluno-turma" placeholder="Ex: Terça 19h" required></div>
+                        <div class="form-group">
+                            <label>Frequência Semanal:</label>
+                            <select id="aluno-frequencia">
+                                <option value="1x na semana">1x na semana</option>
+                                <option value="2x na semana">2x na semana</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
                             <label>Habilidade:</label>
                             <select id="select-habilidade">
                                 <option value="⭐">⭐ (1 Estrela)</option><option value="⭐⭐">⭐⭐ (2 Estrelas)</option><option value="⭐⭐⭐">⭐⭐⭐ (3 Estrelas)</option><option value="⭐⭐⭐⭐">⭐⭐⭐⭐ (4 Estrelas)</option><option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐ (5 Estrelas)</option><option value="⭐⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐⭐ (6 Estrelas)</option><option value="⭐⭐⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐⭐⭐ (7 Estrelas)</option><option value="⭐⭐⭐⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐⭐⭐⭐ (8 Estrelas)</option><option value="⭐⭐⭐⭐⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐⭐⭐⭐⭐ (9 Estrelas)</option><option value="⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ (10 Estrelas)</option>
                             </select>
                         </div>
+                        <div class="form-group"><label>Dia da Semana / Horário das Aulas:</label><input type="text" id="aluno-horario" placeholder="Ex: Seg e Qua - 08:30" required></div>
                     </div>
-                    <div class="form-group"><label>Dia da Semana / Horário das Aulas:</label><input type="text" placeholder="Ex: Seg e Qua - 08:30 às 10:00"></div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Posição em Campo:</label>
-                            <select>
-                                <option>Goleiro</option><option>Zagueiro Central</option><option>Quarto Zagueiro</option><option>Lateral Direito</option><option>Lateral Esquerdo</option><option>Ala Direito</option><option>Ala Esquerdo</option><option>Primeiro Volante</option><option>Segundo Volante</option><option>Meia Central</option><option>Meia Direita</option><option>Meia Esquerda</option><option>Meia-Armador</option><option>Meia-Atacante</option><option>Ponta Direita</option><option>Ponta Esquerda</option><option>Segundo Atacante</option><option>Centroavante</option>
+                            <select id="aluno-posicao">
+                                <option>Goleiro</option><option>Zagueiro Central</option><option>Quarto Zagueiro</option><option>Lateral Direito</option><option>Lateral Esquerdo</option><option>Ala Direito</option><option>Ala Esquerdo</option><option>Primeiro Volante</option><option>Segundo Volante</option><option>Meia Central</option><option>Meia Direita</option><option>Meia Esquerda</option><option>Meia-Armador</option><option>Meia-Atacante</option><option>Ponta Direito</option><option>Ponta Esquerda</option><option>Segundo Atacante</option><option>Centroavante</option>
                             </select>
                         </div>
-                        <div class="form-group"><label>Pé Chutador:</label><select><option>Destro</option><option>Canhoto</option><option>Ambidestro</option></select></div>
+                        <div class="form-group"><label>Pé Chutador:</label><select id="aluno-pe"><option>Destro</option><option>Canhoto</option><option>Ambidestro</option></select></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group"><label>Camiseta:</label><input type="text"></div>
-                        <div class="form-group"><label>Short:</label><input type="text"></div>
-                        <div class="form-group"><label>Meião:</label><input type="text"></div>
+                        <div class="form-group"><label>Camiseta:</label><input type="text" id="aluno-camiseta"></div>
+                        <div class="form-group"><label>Short:</label><input type="text" id="aluno-short"></div>
+                        <div class="form-group"><label>Meião:</label><input type="text" id="aluno-meiao"></div>
                     </div>
                 </div>
 
                 <div id="dados-responsaveis" class="tab-content">
                     <div class="form-row">
-                        <div class="form-group"><label>Data da Matrícula:</label><input type="date" required></div>
-                        <div class="form-group"><label>CPF da Criança:</label><input type="text" class="mask-cpf" placeholder="000.000.000-00"></div>
+                        <div class="form-group"><label>Data da Matrícula:</label><input type="date" id="aluno-matricula" required></div>
+                        <div class="form-group"><label>CPF da Criança:</label><input type="text" class="mask-cpf" id="aluno-cpf-crianca" placeholder="000.000.000-00"></div>
                     </div>
-                    <div class="form-group"><label>Nome do Responsável:</label><input type="text" placeholder="Pai, mãe ou tutor" required></div>
-                    <div class="form-group"><label>CPF do Responsável:</label><input type="text" class="mask-cpf" placeholder="000.000.000-00"></div>
+                    <div class="form-group"><label>Nome do Responsável:</label><input type="text" id="aluno-responsavel" placeholder="Pai, mãe ou tutor" required></div>
+                    <div class="form-group"><label>CPF do Responsável:</label><input type="text" class="mask-cpf" id="aluno-cpf-resp" placeholder="000.000.000-00"></div>
                     <div class="form-row">
-                        <div class="form-group"><label>WhatsApp Principal:</label><input type="tel" class="mask-celular" placeholder="(00) 00000-0000" required></div>
-                        <div class="form-group"><label>Número de Emergência:</label><input type="tel" class="mask-celular" placeholder="(00) 00000-0000"></div>
+                        <div class="form-group"><label>WhatsApp Principal:</label><input type="tel" class="mask-celular" id="aluno-whatsapp" placeholder="(00) 00000-0000" required></div>
+                        <div class="form-group"><label>Número de Emergência:</label><input type="tel" class="mask-celular" id="aluno-emergencia" placeholder="(00) 00000-0000" required></div>
                     </div>
-                    <div class="form-group"><label>Quem está autorizado a retirar a criança?</label><input type="text" placeholder="Ex: Mãe Maria ou Avô José" required></div>
+                    <div class="form-group"><label>Quem está autorizado a retirar a criança?</label><input type="text" id="aluno-retirada" placeholder="Ex: Mãe Maria ou Avô José" required></div>
                     <div class="checkbox-group"><input type="checkbox" id="tem-irmao"><label for="tem-irmao">Tem irmão matriculado?</label></div>
                 </div>
 
                 <div id="dados-saude" class="tab-content">
-                    <div class="checkbox-group safety-check"><input type="checkbox" id="atestado-dia"><label for="atestado-dia">Nordestino? 🩺 Atestado Médico em Dia?</label></div>
+                    <div class="checkbox-group safety-check"><input type="checkbox" id="atestado-dia"><label for="atestado-dia">🩺 Atestado Médico em Dia?</label></div>
                     <div class="checkbox-group safety-check"><input type="checkbox" id="uso-imagem"><label for="uso-imagem">📸 Autorização de Uso de Imagem?</label></div>
-                    <div class="form-group" style="margin-top:15px;"><label>Restrições de Saúde (Asma, Bronquite, Coração, etc):</label><textarea rows="2"></textarea></div>
-                    <div class="form-group"><label>Alergias ou Medicamentos Contínuos:</label><input type="text"></div>
+                    <div class="form-group" style="margin-top:15px;"><label>Restrições de Saúde (Asma, Bronquite, Coração, etc):</label><textarea id="aluno-saude" rows="2"></textarea></div>
+                    <div class="form-group"><label>Alergias ou Medicamentos Contínuos:</label><input type="text" id="aluno-alergias"></div>
                     <div class="form-row">
-                        <div class="form-group"><label>Convênio:</label><input type="text"></div>
-                        <div class="form-group"><label>Nº Carteirinha:</label><input type="text"></div>
+                        <div class="form-group"><label>Convênio:</label><input type="text" id="aluno-convenio"></div>
+                        <div class="form-group"><label>Nº Carteirinha:</label><input type="text" id="aluno-carteirinha"></div>
                     </div>
                 </div>
                 <button type="submit" class="btn-salvar-aluno">Salvar Ficha do Aluno</button>
