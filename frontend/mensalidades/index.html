@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FUT10 - Controle de Mensalidades</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Trava de segurança para renderização via JS -->
+    <div id="bloqueio-acesso" style="display: none;">
+        <h2>Acesso Negado</h2>
+        <p>Apenas a Alessandra tem permissão para visualizar e gerenciar o financeiro.</p>
+        <button onclick="window.location.href='../dashboard/index.html'">Voltar ao Dashboard</button>
+    </div>
+
+    <div id="conteudo-pagina" class="app-container">
+        <!-- Cabeçalho Mobile-First -->
+        <header class="header-financeiro">
+            <button class="btn-voltar" onclick="window.location.href='../dashboard/index.html'">⬅ Voltar</button>
+            <h1>Mensalidades 💰</h1>
+            <span class="ano-atual">Ano: 2026</span>
+        </header>
+
+        <!-- Seção de Filtros e Busca Inteligente -->
+        <section class="filtros-container">
+            <div class="form-group-busca">
+                <input type="text" id="busca-aluno" placeholder="🔎 Buscar aluno por nome...">
+            </div>
+            <div class="filtros-linha">
+                <div class="form-group-select">
+                    <select id="filtro-turma">
+                        <option value="">Todas as Turmas</option>
+                    </select>
+                </div>
+                <div class="form-group-select">
+                    <select id="filtro-status">
+                        <option value="">Todos os Status</option>
+                        <option value="INADIMPLENTE">🔴 Inadimplentes</option>
+                        <option value="EM_DIA">🟢 Em Dia</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lista de Cards de Alunos -->
+        <main id="lista-mensalidades" class="cards-lista">
+            <!-- Os cards serão criados aqui via JavaScript -->
+        </main>
+    </div>
+
+    <!-- Modal de Confirmação de Pagamento -->
+    <div id="modal-pagamento" class="modal">
+        <div class="modal-content">
+            <h3>Confirmar Pagamento</h3>
+            <div class="detalhes-pagamento">
+                <p><strong>Aluno:</strong> <span id="modal-nome-aluno"></span></p>
+                <p><strong>Mês de Referência:</strong> <span id="modal-mes-nome"></span></p>
+                <hr class="divisor-modal">
+                <p><strong>Regra Aplicada:</strong> <span id="modal-regra"></span></p>
+                <p class="valor-destaque"><strong>Valor Calculado:</strong> R$ <span id="modal-valor">0,00</span></p>
+            </div>
+            <div class="modal-botoes">
+                <button id="btn-cancelar-pagamento" class="btn-secundario">Cancelar</button>
+                <button id="btn-confirmar-pagamento" class="btn-primario">Confirmar Recebimento</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
