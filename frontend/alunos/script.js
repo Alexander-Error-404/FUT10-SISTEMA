@@ -1,7 +1,33 @@
 let alunos = JSON.parse(localStorage.getItem('fut10_alunos')) || [];
 let fotoBase64 = "";
 
-// ATUALIZA O COMBOCBOX DE FILTRO DE TURMAS AUTOMATICAMENTE
+// Função auxiliar para calcular diferença de dias
+function calcularDiasDesde(dataString) {
+    if (!dataString) return 999; // Se não tiver data, força inativo por segurança
+    const dataPassada = new Date(dataString);
+    const hoje = new Date();
+    // Zera as horas para comparar apenas os dias corridos
+    dataPassada.setHours(0,0,0,0);
+    hoje.setHours(0,0,0,0);
+    const diferencaTempo = hoje.getTime() - dataPassada.getTime();
+    return Math.floor(diferencaTempo / (1000 * 60 * 60 * 24));
+}
+
+// Determina dinamicamente o status do aluno baseado nas presenças
+function obterStatusAluno(aluno) {
+    const diasSemPresenca = calcularDiasDesde(aluno.ultimaPresenca || aluno.matricula);
+    return diasSemPresenca >= 30 ? 'INATIVO' : 'ATIVO';
+}
+
+// Verifica a quantidade de alunos ativos em uma determinada turma
+function contarAtivosNaTurma(nomeTurma, idIgnorar = "") {
+    const turmaLimpa = nomeTurma.trim().toUpperCase();
+    return alunos.filter(a => {
+        if (a.id === idIgnorar) return false;
+        return a.turma.trim().toUpperCase() === turmaLimpa && obterStatusAluno(a) === 'ATIVO';
+    }).length;
+}
+// Atualiza o combobox de filtro de turmas automaticamente
 function atualizarFiltroTurmas() {
     const filtroTurma = document.getElementById('filtro-turma-busca');
     if (!filtroTurma) return;
@@ -9,8 +35,8 @@ function atualizarFiltroTurmas() {
     const valorAtual = filtroTurma.value;
     filtroTurma.innerHTML = '<option value="">Selecione uma turma...</option>';
     
-    // Pega as turmas dos alunos sem repetir
-    const turmasUnicas = [...new Set(alunos.map(a => a.turma.trim()))].sort();
+    // Extrai turmas únicas padronizadas em maiúsculo
+    const turmasUnicas = [...new Set(alunos.map(a => a.turma.trim().toUpperCase()))].sort();
     
     turmasUnicas.forEach(turma => {
         const option = document.createElement('option');
@@ -21,37 +47,61 @@ function atualizarFiltroTurmas() {
     
     filtroTurma.value = valorAtual;
 }
-
-// FUNÇÃO PARA REDESENHAR OS CARDS COM A NOVA CONFIGURAÇÃO DE EXIBIÇÃO
+// Renderiza os cards aplicando os filtros de nome, turma, status e habilidade
 function renderizarAlunos() {
     const lista = document.getElementById('alunos-lista');
     if (!lista) return;
     lista.innerHTML = '';
 
-    if (alunos.length === 0) {
-        lista.innerHTML = '<p style="color: #fff; text-align: center; width: 100%; padding: 20px;">Nenhum aluno cadastrado ainda.</p>';
+    const buscaNome = document.getElementById('busca-nome')?.value.toLowerCase() || '';
+    const filtroTurma = document.getElementById('filtro-turma-busca')?.value.toUpperCase() || '';
+    const filtroStatus = document.getElementById('filtro-status-busca')?.value || '';
+    const filtroHabilidade = document.getElementById('filtro-habilidade')?.value || '';
+
+    const alunosFiltrados = alunos.filter(aluno => {
+        const status = obterStatusAluno(aluno);
+        const atendeNome = aluno.nome.toLowerCase().includes(buscaNome);
+        const atendeTurma = filtroTurma === '' || aluno.turma.trim().toUpperCase() === filtroTurma;
+        const atendeStatus = filtroStatus === '' || status === filtroStatus;
+        
+        let atendeHabilidade = true;
+        if (filtroHabilidade === '⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐') {
+            atendeHabilidade = aluno.habilidade === '⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐';
+        } else if (filtroHabilidade === '⭐⭐⭐⭐⭐⭐⭐⭐') {
+            atendeHabilidade = aluno.habilidade.length >= 8;
+        }
+
+        return atendeNome && atendeTurma && atendeStatus && atendeHabilidade;
+    });
+
+    if (alunosFiltrados.length === 0) {
+        lista.innerHTML = '<p style="color: #fff; text-align: center; width: 100%; padding: 20px;">Nenhum aluno encontrado.</p>';
         return;
     }
-
-    alunos.forEach(aluno => {
+    alunosFiltrados.forEach(aluno => {
+        const status = obterStatusAluno(aluno);
+        const classeStatus = status === 'ATIVO' ? 'status-ativo' : 'status-inativo';
+        const textoStatus = status === 'ATIVO' ? '🟢 ATIVO' : '🔴 INATIVO (30 dias s/ aula)';
+        
         const card = document.createElement('div');
         card.className = 'aluno-card';
         card.innerHTML = `
             <div class="aluno-header">
-                <div class="aluno-foto-perfil">${aluno.foto ? `<img src="${aluno.foto}">` : '👦'}</div>
+                <div class="aluno-foto-perfil ${classeStatus}">${aluno.foto ? `<img src="${aluno.foto}">` : '👦'}</div>
                 <div class="aluno-titulo">
                     <h4>${aluno.nome}</h4>
-                    <span class="badge-categoria">Turma: ${aluno.turma} (${aluno.frequencia || '1x na semana'}) - ${aluno.idade}</span>
+                    <span class="badge-categoria">Turma: ${aluno.turma.toUpperCase()} (${aluno.frequencia || '1x na semana'}) - ${aluno.idade}</span>
                 </div>
                 <div class="aluno-estrelas">${aluno.habilidade}</div>
             </div>
             <div class="aluno-detalhes">
-                <p><strong>Posição:</strong> ${aluno.posicao} | <strong>Retirada por:</strong> ${aluno.retirada}</p>
-                <p><strong>Horário de Aula:</strong> ${aluno.horario || 'Não Informado'}</p>
+                <p><strong>Situação:</strong> <span style="font-weight:bold;">${textoStatus}</span></p>
+                <p><strong>Posição:</strong> ${aluno.posicao} | <strong>Retirada:</strong> ${aluno.retirada}</p>
+                <p><strong>Horário:</strong> ${aluno.horario || 'Não Informado'}</p>
                 <p><strong>Matrícula:</strong> ${aluno.matricula.split('-').reverse().join('/')}</p>
             </div>
             <div class="aluno-acoes">
-                <a href="tel:${aluno.emergencia.replace(/\D/g,'')}" class="btn-acao btn-ligar">📞 Emergência: ${aluno.emergencia}</a>
+                <a href="tel:${aluno.emergencia.replace(/\D/g,'')}" class="btn-acao btn-ligar">📞 Emergência</a>
                 <button class="btn-acao btn-editar" onclick="editarAluno('${aluno.id}')">✏️</button>
                 <button class="btn-acao btn-excluir" onclick="excluirAluno('${aluno.id}')">🗑️</button>
             </div>
@@ -60,6 +110,7 @@ function renderizarAlunos() {
     });
 }
 
+// Remove o aluno do sistema
 function excluirAluno(id) {
     if (confirm("Deseja realmente excluir este aluno permanentemente?")) {
         alunos = alunos.filter(a => a.id !== id);
@@ -68,15 +119,23 @@ function excluirAluno(id) {
         renderizarAlunos();
     }
 }
+// Carrega a ficha do aluno selecionado para edição dentro do Modal
 function editarAluno(id) {
     const aluno = alunos.find(a => a.id === id);
     if (!aluno) return;
+
+    const status = obterStatusAluno(aluno);
+    const inputStatus = document.getElementById('aluno-status-exibicao');
+    if (inputStatus) {
+        inputStatus.value = status;
+        inputStatus.style.color = status === 'ATIVO' ? '#25d366' : '#ba181b';
+    }
 
     document.getElementById('aluno-id').value = aluno.id;
     document.getElementById('aluno-nome').value = aluno.nome;
     document.getElementById('data-nasc').value = aluno.nascimento;
     document.getElementById('idade-aluno').value = aluno.idade;
-    document.getElementById('aluno-turma').value = aluno.turma;
+    document.getElementById('aluno-turma').value = aluno.turma.toUpperCase();
     document.getElementById('aluno-frequencia').value = aluno.frequencia || '1x na semana';
     document.getElementById('select-habilidade').value = aluno.habilidade;
     document.getElementById('aluno-horario').value = aluno.horario || '';
@@ -100,11 +159,12 @@ function editarAluno(id) {
     document.getElementById('aluno-convenio').value = aluno.convenio || '';
     document.getElementById('aluno-carteirinha').value = aluno.carteirinha || '';
 
+    const preview = document.getElementById('foto-preview');
     if (aluno.foto) {
-        document.getElementById('foto-preview').innerHTML = `<img src="${aluno.foto}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+        preview.innerHTML = `<img src="${aluno.foto}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
         fotoBase64 = aluno.foto;
     } else {
-        document.getElementById('foto-preview').innerHTML = '📸';
+        preview.innerHTML = '📸';
         fotoBase64 = "";
     }
     document.getElementById('modal-aluno').style.display = 'flex';
@@ -113,8 +173,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('modal-aluno');
     const btnNovoAluno = document.getElementById('btn-novo-aluno');
     const btnFecharModal = document.getElementById('btn-fechar-modal');
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
+    
+    // Ouvintes de filtros em tempo real
+    document.getElementById('busca-nome')?.addEventListener('input', renderizarAlunos);
+    document.getElementById('filtro-turma-busca')?.addEventListener('change', renderizarAlunos);
+    document.getElementById('filtro-status-busca')?.addEventListener('change', renderizarAlunos);
+    document.getElementById('filtro-habilidade')?.addEventListener('change', renderizarAlunos);
 
     atualizarFiltroTurmas();
     renderizarAlunos();
@@ -122,6 +186,8 @@ document.addEventListener('DOMContentLoaded', function() {
     btnNovoAluno.addEventListener('click', () => {
         document.getElementById('formAluno').reset();
         document.getElementById('aluno-id').value = '';
+        document.getElementById('aluno-status-exibicao').value = 'ATIVO';
+        document.getElementById('aluno-status-exibicao').style.color = '#25d366';
         document.getElementById('foto-preview').innerHTML = '📸';
         fotoBase64 = "";
         modal.style.display = 'flex';
@@ -129,16 +195,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
     btnFecharModal.addEventListener('click', () => modal.style.display = 'none');
 
-    tabButtons.forEach(button => {
+    // Navegação de abas do modal
+    document.querySelectorAll('.tab-btn').forEach(button => {
         button.addEventListener('click', () => {
             const targetTab = button.getAttribute('data-tab');
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             button.classList.add('active');
             document.getElementById(targetTab).classList.add('active');
         });
     });
 
+    // Processamento do Upload da Foto
     document.getElementById('foto-aluno').addEventListener('change', function() {
         const file = this.files[0];
         if (file) {
@@ -151,6 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Cálculo automático de Idade
     document.getElementById('data-nasc').addEventListener('change', function() {
         if (!this.value) return;
         const hoje = new Date();
@@ -162,16 +231,34 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('idade-aluno').value = idade + (idade === 1 ? " ano" : " anos");
     });
 
+    // Envio do formulário com trava de segurança de 20 alunos por turma
     document.getElementById('formAluno').addEventListener('submit', function(e) {
         e.preventDefault();
         const idExistente = document.getElementById('aluno-id').value;
+        const turmaDigitada = document.getElementById('aluno-turma').value;
+        
+        // Simulação de regras locais: se editado mantém a última presença registrada, se novo inicia hoje
+        const alunoAntigo = alunos.find(a => a.id === idExistente);
+        const dataUltimaPresenca = alunoAntigo ? (alunoAntigo.ultimaPresenca || alunoAntigo.matricula) : document.getElementById('aluno-matricula').value;
+
+        // Cria objeto temporário apenas para checar o status que ele assumirá
+        const objetoChecagem = { matricula: document.getElementById('aluno-matricula').value, ultimaPresenca: dataUltimaPresenca };
+        
+        // TRAVA DOS 20 ALUNOS: Só valida se o status final calculado do aluno for ATIVO
+        if (obterStatusAluno(objetoChecagem) === 'ATIVO') {
+            const totalAtivos = contarAtivosNaTurma(turmaDigitada, idExistente);
+            if (totalAtivos >= 20) {
+                alert(`⚠️ Impossível salvar! A turma ${turmaDigitada.toUpperCase()} já atingiu o limite máximo de 20 alunos ativos.`);
+                return;
+            }
+        }
         
         const dadosAluno = {
             id: idExistente || Date.now().toString(),
             nome: document.getElementById('aluno-nome').value,
             nascimento: document.getElementById('data-nasc').value,
             idade: document.getElementById('idade-aluno').value,
-            turma: document.getElementById('aluno-turma').value,
+            turma: turmaDigitada,
             frequencia: document.getElementById('aluno-frequencia').value,
             habilidade: document.getElementById('select-habilidade').value,
             horario: document.getElementById('aluno-horario').value,
@@ -194,7 +281,8 @@ document.addEventListener('DOMContentLoaded', function() {
             alergias: document.getElementById('aluno-alergias').value,
             convenio: document.getElementById('aluno-convenio').value,
             carteirinha: document.getElementById('aluno-carteirinha').value,
-            foto: fotoBase64
+            foto: fotoBase64,
+            ultimaPresenca: dataUltimaPresenca
         };
 
         if (idExistente) {
@@ -210,6 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderizarAlunos();
     });
 
+    // Máscaras de entrada de dados
     document.querySelectorAll('.mask-cpf').forEach(i => {
         i.addEventListener('input', e => {
             let v = e.target.value.replace(/\D/g, "");
