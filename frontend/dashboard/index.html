@@ -16,6 +16,33 @@
     </header>
 
     <main class="dashboard-container">
+        <!-- SEÇÃO DE INDICADORES RÁPIDOS (KPIs) -->
+        <div class="indicadores-container">
+            <div class="card-indicador">
+                <div class="ind-icon">👥</div>
+                <div class="ind-info">
+                    <span id="kpi-alunos">0</span>
+                    <p>Alunos Matriculados</p>
+                </div>
+            </div>
+
+            <div class="card-indicador border-pendente">
+                <div class="ind-icon">⚠️</div>
+                <div class="ind-info">
+                    <span id="kpi-inadimplentes">0</span>
+                    <p>Alunos Pendentes</p>
+                </div>
+            </div>
+
+            <div class="card-indicador border-estoque">
+                <div class="ind-icon">🥤</div>
+                <div class="ind-info">
+                    <span id="kpi-estoque">0</span>
+                    <p>Itens a Acabar (Bar)</p>
+                </div>
+            </div>
+        </div>
+
         <h3>Painel de Controle</h3>
         
         <div class="menu-grid">
@@ -43,11 +70,21 @@
                 </div>
             </a>
 
-            <a href="../financeiro/index.html" class="menu-card menu-alessandra">
+            <!-- NOVO: Acesso Exclusivo da Alessandra para Gerenciamento de Mensalidades -->
+            <a href="../mensalidades/index.html" class="menu-card menu-alessandra">
                 <div class="card-icon">💰</div>
                 <div class="card-info">
-                    <h4>Financeiro</h4>
-                    <p>Mensalidades e lista de caloteiros</p>
+                    <h4>Mensalidades</h4>
+                    <p>Controle de pagamentos (Grid Jan-Dez)</p>
+                </div>
+            </a>
+
+            <!-- MODIFICADO: Mantido na visão da Alessandra para futuros relatórios de Lucro Líquido -->
+            <a href="../financeiro/index.html" class="menu-card menu-alessandra">
+                <div class="card-icon">📊</div>
+                <div class="card-info">
+                    <h4>Financeiro / Caixa</h4>
+                    <p>Faturamento global e lucros da escolinha</p>
                 </div>
             </a>
 
