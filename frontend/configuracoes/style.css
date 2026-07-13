@@ -1,0 +1,229 @@
+/* ==========================================================================
+   CSS de Configurações - FUT10 (Paleta Oficial: Azul, Vermelho e Branco)
+   ========================================================================== */
+
+:root {
+    --color-blue: #0a2b66;       /* Azul Escuro do Brasão */
+    --color-blue-dark: #071f4a;  /* Azul profundo para sidebar e foco */
+    --color-red: #e61922;        /* Vermelho vibrante do "T" central */
+    --color-red-hover: #c31219;  /* Tom vermelho mais fechado para interações */
+    --bg-light: #f4f6f9;         /* Fundo leve para destacar os cards */
+    --card-bg: #ffffff;
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --radius: 12px;
+    --transition: all 0.2s ease-in-out;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main);
+}
+
+.app-container {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+}
+
+/* Sidebar Oficial FUT10 */
+.sidebar {
+    background-color: var(--color-blue-dark);
+    color: #ffffff;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    border-right: 4px solid var(--color-red);
+}
+
+.sidebar-brand h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sidebar-menu a {
+    color: #dae2ed;
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.sidebar-menu a:hover, 
+.sidebar-menu a.active {
+    background-color: var(--color-blue);
+    color: #ffffff;
+}
+
+.sidebar-menu a.active {
+    border-left: 4px solid var(--color-red);
+}
+
+/* Conteúdo Principal */
+.main-content {
+    padding: 2.5rem;
+    max-width: 1000px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.content-header h1 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    color: var(--color-blue);
+    border-left: 5px solid var(--color-red);
+    padding-left: 10px;
+}
+
+.content-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+#form-configuracoes {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.config-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: var(--color-blue);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 3px solid var(--color-red);
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.period-block {
+    background-color: #f8fafc;
+    padding: 1.25rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.period-title {
+    margin: 0 0 1rem 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-blue);
+}
+
+.margin-top-sub { 
+    margin-top: 1.5rem; 
+}
+
+.grid-2-col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-blue-dark);
+}
+
+.form-group input {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: var(--text-main);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.form-group input:focus {
+    border-color: var(--color-red);
+    box-shadow: 0 0 0 3px rgba(230, 25, 34, 0.15);
+    outline: none;
+}
+
+.helper-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.form-actions { 
+    display: flex; 
+    justify-content: flex-end; 
+}
+
+.btn-primary {
+    background-color: var(--color-blue);
+    color: #ffffff;
+    border: 2px solid var(--color-blue);
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-red);
+    border-color: var(--color-red);
+}
+
+@media (max-width: 768px) {
+    .app-container { 
+        grid-template-columns: 1fr; 
+    }
+    .sidebar { 
+        display: none; 
+    }
+    .main-content { 
+        padding: 1.25rem; 
+    }
+}

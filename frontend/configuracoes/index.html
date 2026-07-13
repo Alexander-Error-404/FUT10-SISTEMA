@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUT10 - Configurações do Sistema</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar lateral rápida -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h2>FUT10 ⚽</h2>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="../dashboard/index.html">⬅️ Voltar ao Dashboard</a>
+                <a href="#" class="active">⚙️ Configurações</a>
+            </nav>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Regras de Negócio e Valores</h1>
+                <p>Gerencie os valores de mensalidades por data, preços de uniformes e políticas de desconto para irmãos do FUT10.</p>
+            </header>
+
+            <form id="form-configuracoes">
+                
+                <!-- SEÇÃO 1: MENSALIDADES (POR PERÍODO E FREQUÊNCIA) -->
+                <section class="config-card">
+                    <div class="card-header">
+                        <h3>📅 Mensalidades por Período e Frequência Semanal</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="period-block">
+                            <h4 class="period-title">💰 Período 1: Até o dia 10 do mês</h4>
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="mensalidade-1x-p1">1x na Semana (Até dia 10)</label>
+                                    <input type="text" id="mensalidade-1x-p1" class="campo-moeda" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mensalidade-2x-p1">2x na Semana (Até dia 10)</label>
+                                    <input type="text" id="mensalidade-2x-p1" class="campo-moeda" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="period-block">
+                            <h4 class="period-title">💰 Período 2: Do dia 11 ao dia 20</h4>
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="mensalidade-1x-p2">1x na Semana (Dia 11 a 20)</label>
+                                    <input type="text" id="mensalidade-1x-p2" class="campo-moeda" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mensalidade-2x-p2">2x na Semana (Dia 11 a 20)</label>
+                                    <input type="text" id="mensalidade-2x-p2" class="campo-moeda" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="period-block">
+                            <h4 class="period-title">💰 Período 3: Do dia 21 ao dia 30/31</h4>
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="mensalidade-1x-p3">1x na Semana (Dia 21 a 30)</label>
+                                    <input type="text" id="mensalidade-1x-p3" class="campo-moeda" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mensalidade-2x-p3">2x na Semana (Dia 21 a 30)</label>
+                                    <input type="text" id="mensalidade-2x-p3" class="campo-moeda" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SEÇÃO 2: DESCONTO PARA IRMÃOS -->
+                <section class="config-card">
+                    <div class="card-header">
+                        <h3>👥 Política de Desconto para Irmãos</h3>
+                    </div>
+                    <div class="card-body grid-2-col">
+                        <div class="form-group">
+                            <label for="desconto-irmao-1x">Desconto Irmão - 1x na Semana</label>
+                            <input type="text" id="desconto-irmao-1x" class="campo-moeda" required>
+                            <span class="helper-text">Valor subtraído da mensalidade básica.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="desconto-irmao-2x">Desconto Irmão - 2x na Semana</label>
+                            <input type="text" id="desconto-irmao-2x" class="campo-moeda" required>
+                            <span class="helper-text">Valor subtraído da mensalidade básica.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SEÇÃO 3: UNIFORMES E COMPONENTES AVULSOS -->
+                <section class="config-card">
+                    <div class="card-header">
+                        <h3>👕 Uniformes e Acessórios Avulsos</h3>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="period-title">Kit de Uniforme Completo</h4>
+                        <div class="grid-2-col">
+                            <div class="form-group">
+                                <label for="uniforme-vista">Uniforme Completo - À Vista (Pix/Dinheiro/Débito)</label>
+                                <input type="text" id="uniforme-vista" class="campo-moeda" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="uniforme-prazo">Uniforme Completo - Parcelado (3x no Crédito)</label>
+                                <input type="text" id="uniforme-prazo" class="campo-moeda" required>
+                            </div>
+                        </div>
+
+                        <h4 class="period-title margin-top-sub">Peças Avulsas (Apenas à Vista)</h4>
+                        <div class="grid-2-col">
+                            <div class="form-group">
+                                <label for="meiao-a">Meião Tipo "A"</label>
+                                <input type="text" id="meiao-a" class="campo-moeda" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="meiao-b">Meião Tipo "B"</label>
+                                <input type="text" id="meiao-b" class="campo-moeda" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="shorts-a">Shorts Tipo "A"</label>
+                                <input type="text" id="shorts-a" class="campo-moeda" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="camiseta-fut10">Camiseta FUT10</label>
+                                <input type="text" id="camiseta-fut10" class="campo-moeda" required>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Ações -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">💾 Salvar Configurações</button>
+                </div>
+            </form>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
