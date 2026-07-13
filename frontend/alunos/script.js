@@ -3,10 +3,9 @@ let fotoBase64 = "";
 
 // Função auxiliar para calcular diferença de dias
 function calcularDiasDesde(dataString) {
-    if (!dataString) return 999; // Se não tiver data, força inativo por segurança
+    if (!dataString) return 999; 
     const dataPassada = new Date(dataString);
     const hoje = new Date();
-    // Zera as horas para comparar apenas os dias corridos
     dataPassada.setHours(0,0,0,0);
     hoje.setHours(0,0,0,0);
     const diferencaTempo = hoje.getTime() - dataPassada.getTime();
@@ -27,6 +26,7 @@ function contarAtivosNaTurma(nomeTurma, idIgnorar = "") {
         return a.turma.trim().toUpperCase() === turmaLimpa && obterStatusAluno(a) === 'ATIVO';
     }).length;
 }
+
 // Atualiza o combobox de filtro de turmas automaticamente
 function atualizarFiltroTurmas() {
     const filtroTurma = document.getElementById('filtro-turma-busca');
@@ -35,7 +35,6 @@ function atualizarFiltroTurmas() {
     const valorAtual = filtroTurma.value;
     filtroTurma.innerHTML = '<option value="">Selecione uma turma...</option>';
     
-    // Extrai turmas únicas padronizadas em maiúsculo
     const turmasUnicas = [...new Set(alunos.map(a => a.turma.trim().toUpperCase()))].sort();
     
     turmasUnicas.forEach(turma => {
@@ -47,7 +46,8 @@ function atualizarFiltroTurmas() {
     
     filtroTurma.value = valorAtual;
 }
-// Renderiza os cards aplicando os filtros de nome, turma, status e habilidade
+
+// Renderiza os cards aplicando todos os filtros (inclusive o de estrelas completo)
 function renderizarAlunos() {
     const lista = document.getElementById('alunos-lista');
     if (!lista) return;
@@ -65,10 +65,11 @@ function renderizarAlunos() {
         const atendeStatus = filtroStatus === '' || status === filtroStatus;
         
         let atendeHabilidade = true;
-        if (filtroHabilidade === '⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐') {
-            atendeHabilidade = aluno.habilidade === '⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐';
-        } else if (filtroHabilidade === '⭐⭐⭐⭐⭐⭐⭐⭐') {
-            atendeHabilidade = aluno.habilidade.length >= 8;
+        if (filtroHabilidade !== '') {
+            // Conta os caracteres corretos do array de strings de estrelas
+            const numEstrelas = aluno.habilidade ? [...aluno.habilidade].length : 0;
+            const metaEstrelas = parseInt(filtroHabilidade, 10);
+            atendeHabilidade = (numEstrelas === metaEstrelas);
         }
 
         return atendeNome && atendeTurma && atendeStatus && atendeHabilidade;
@@ -78,6 +79,11 @@ function renderizarAlunos() {
         lista.innerHTML = '<p style="color: #fff; text-align: center; width: 100%; padding: 20px;">Nenhum aluno encontrado.</p>';
         return;
     }
+    
+    exibirCardsFiltrados(lista, alunosFiltrados);
+}
+// Gera o layout visual de cada card renderizado
+function exibirCardsFiltrados(lista, alunosFiltrados) {
     alunosFiltrados.forEach(aluno => {
         const status = obterStatusAluno(aluno);
         const classeStatus = status === 'ATIVO' ? 'status-ativo' : 'status-inativo';
@@ -119,6 +125,7 @@ function excluirAluno(id) {
         renderizarAlunos();
     }
 }
+
 // Carrega a ficha do aluno selecionado para edição dentro do Modal
 function editarAluno(id) {
     const aluno = alunos.find(a => a.id === id);
@@ -174,7 +181,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnNovoAluno = document.getElementById('btn-novo-aluno');
     const btnFecharModal = document.getElementById('btn-fechar-modal');
     
-    // Ouvintes de filtros em tempo real
     document.getElementById('busca-nome')?.addEventListener('input', renderizarAlunos);
     document.getElementById('filtro-turma-busca')?.addEventListener('change', renderizarAlunos);
     document.getElementById('filtro-status-busca')?.addEventListener('change', renderizarAlunos);
@@ -195,7 +201,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     btnFecharModal.addEventListener('click', () => modal.style.display = 'none');
 
-    // Navegação de abas do modal
     document.querySelectorAll('.tab-btn').forEach(button => {
         button.addEventListener('click', () => {
             const targetTab = button.getAttribute('data-tab');
@@ -206,7 +211,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Processamento do Upload da Foto
     document.getElementById('foto-aluno').addEventListener('change', function() {
         const file = this.files[0];
         if (file) {
@@ -219,7 +223,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Cálculo automático de Idade
     document.getElementById('data-nasc').addEventListener('change', function() {
         if (!this.value) return;
         const hoje = new Date();
@@ -231,24 +234,20 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('idade-aluno').value = idade + (idade === 1 ? " ano" : " anos");
     });
 
-    // Envio do formulário com trava de segurança de 20 alunos por turma
     document.getElementById('formAluno').addEventListener('submit', function(e) {
         e.preventDefault();
         const idExistente = document.getElementById('aluno-id').value;
         const turmaDigitada = document.getElementById('aluno-turma').value;
         
-        // Simulação de regras locais: se editado mantém a última presença registrada, se novo inicia hoje
         const alunoAntigo = alunos.find(a => a.id === idExistente);
         const dataUltimaPresenca = alunoAntigo ? (alunoAntigo.ultimaPresenca || alunoAntigo.matricula) : document.getElementById('aluno-matricula').value;
 
-        // Cria objeto temporário apenas para checar o status que ele assumirá
         const objetoChecagem = { matricula: document.getElementById('aluno-matricula').value, ultimaPresenca: dataUltimaPresenca };
         
-        // TRAVA DOS 20 ALUNOS: Só valida se o status final calculado do aluno for ATIVO
         if (obterStatusAluno(objetoChecagem) === 'ATIVO') {
             const totalAtivos = contarAtivosNaTurma(turmaDigitada, idExistente);
             if (totalAtivos >= 20) {
-                alert(`⚠️ Impossível salvar! A turma ${turmaDigitada.toUpperCase()} já atingiu o limite máximo de 20 alunos ativos.`);
+                alert(`⚠️ Impossível salvar! A turma ${turmaDigitada.toUpperCase()} já atingiu o limite de 20 ativos.`);
                 return;
             }
         }
@@ -298,7 +297,6 @@ document.addEventListener('DOMContentLoaded', function() {
         renderizarAlunos();
     });
 
-    // Máscaras de entrada de dados
     document.querySelectorAll('.mask-cpf').forEach(i => {
         i.addEventListener('input', e => {
             let v = e.target.value.replace(/\D/g, "");

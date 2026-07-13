@@ -11,16 +11,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Regra de restrição de abas por perfil original
     if (usuarioLogado === 'alessandra') {
-        document.querySelectorAll('.menu-vinicius').forEach(card => {
-            card.classList.add('ocultar');
-        });
+        document.querySelectorAll('.menu-vinicius').forEach(card => card.classList.add('ocultar'));
     } else if (usuarioLogado === 'vinicius') {
-        document.querySelectorAll('.menu-alessandra').forEach(card => {
-            card.classList.add('ocultar');
-        });
+        document.querySelectorAll('.menu-alessandra').forEach(card => card.classList.add('ocultar'));
     }
 
-    // DISPARO SEGURO DO MOTOR DOS INDICADORES
     try {
         calcularEExibirIndicadores();
     } catch (erro) {
@@ -28,43 +23,62 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Calcula dias desde o último registro para checagem de inatividade
+function diasSemAula(aluno) {
+    const referencia = aluno.ultimaPresenca || aluno.matricula;
+    if (!referencia) return 999;
+    const dataPassada = new Date(referencia);
+    const hoje = new Date();
+    dataPassada.setHours(0,0,0,0);
+    hoje.setHours(0,0,0,0);
+    return Math.floor((hoje - dataPassada) / (1000 * 60 * 60 * 24));
+}
+
 function calcularEExibirIndicadores() {
-    // 1. Total de Alunos
     const dadosAlunos = JSON.parse(localStorage.getItem('fut10_alunos')) || [];
     document.getElementById('kpi-alunos').textContent = dadosAlunos.length;
 
-    // 2. Alunos Inadimplentes
     const historicoFin = JSON.parse(localStorage.getItem('fut10_historico_financeiro')) || {};
-    const mesAtualIndice = new Date().getMonth(); 
+    const hoje = new Date();
+    const mesAtualIndice = hoje.getMonth(); 
+    const anoAtual = hoje.getFullYear();
     let contagemInadimplentes = 0;
 
     dadosAlunos.forEach(aluno => {
-        // Proteção: pula se o aluno não tiver data ou ID válidos
-        if (!aluno || !aluno.dataMatricula || !aluno.id) return;
+        if (!aluno || !aluno.matricula || !aluno.id) return;
         
-        let mesMat = 1; 
-        
-        try {
-            if (aluno.dataMatricula.includes('-')) {
-                const partes = aluno.dataMatricula.split('-');
-                mesMat = Number(partes[1]);
-            } else if (aluno.dataMatricula.includes('/')) {
-                const partes = aluno.dataMatricula.split('/');
-                mesMat = Number(partes[1]);
-            }
-        } catch (e) {
-            return; // ignora falhas de conversão de data
-        }
-        
-        const mesMatriculaIndice = mesMat - 1;
+        // Regra F: Se tiver 30 dias sem aula, o cadastro está inativo e não deve gerar cobrança nova
+        if (diasSemAula(aluno) >= 30) return;
 
-        if (mesAtualIndice >= mesMatriculaIndice) {
-            const pagamentoEfetuado = historicoFin[aluno.id] && historicoFin[aluno.id][mesAtualIndice];
-            if (!pagamentoEfetuado) {
+        // Analisa a data de matrícula do aluno
+        let dataMat;
+        if (aluno.matricula.includes('-')) {
+            dataMat = new Date(aluno.matricula);
+        } else if (aluno.matricula.includes('/')) {
+            const partes = aluno.matricula.split('/');
+            dataMat = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+        } else {
+            return;
+        }
+
+        const anoMatricula = dataMat.getFullYear();
+        const mesMatricula = dataMat.getMonth();
+
+        // Verifica os meses atrasados desde a data da matrícula até o mês corrente do ano atual
+        for (let m = 0; m <= mesAtualIndice; m++) {
+            if (anoMatricula > anoAtual || (anoMatricula === anoAtual && m < mesMatricula)) {
+                continue; // Mês anterior à matrícula não gera inadimplência
+            }
+
+            // Verifica se este mês está quitado no histórico financeiro
+            const pago = historicoFin[aluno.id] && historicoFin[aluno.id][m];
+            if (!pago) {
                 contagemInadimplentes++;
+                break; // Se achou ao menos um mês atrasado, o aluno já é marcado como inadimplente
             }
         }
     });
+    
     document.getElementById('kpi-inadimplentes').textContent = contagemInadimplentes;
 
     // 3. Itens a acabar na Cantina

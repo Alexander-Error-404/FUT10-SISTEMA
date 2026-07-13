@@ -48,13 +48,11 @@ body {
     padding: 20px;
 }
 
-/* ==========================================================================
-   ESTILOS DOS INDICADORES RÁPIDOS (MINI QUADRADINHOS CONTROLADOS)
-   ========================================================================== */
+/* KPIs em Formato Fixo (Ideal para celular) */
 .indicadores-container {
     display: flex;
-    flex-direction: row; /* Mantém um do lado do outro */
-    justify-content: center; /* MÁGICA: Centraliza o grupo de quadradinhos na tela */
+    flex-direction: row;
+    justify-content: center;
     gap: 12px;
     margin-bottom: 25px;
     width: 100%;
@@ -70,39 +68,31 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    
-    /* AQUI ESTÁ A MUDANÇA: Tamanho pequeno e travado para não crescer demais */
     width: 95px;
     height: 90px;
     text-align: center;
 }
 
-.card-indicador.border-pendente {
-    border-top-color: #f59e0b;
-}
-
-.card-indicador.border-estoque {
-    border-top-color: #ef4444;
-}
+.card-indicador.border-pendente { border-top-color: #f59e0b; }
+.card-indicador.border-estoque { border-top-color: #ef4444; }
 
 .ind-icon {
-    font-size: 1.2rem; /* Ícone menor */
+    font-size: 1.2rem;
     margin-bottom: 2px;
 }
 
 .ind-info span {
-    font-size: 1.1rem; /* Número menor */
+    font-size: 1.1rem;
     font-weight: bold;
     display: block;
     line-height: 1.1;
 }
 
 .ind-info p {
-    font-size: 0.62rem; /* Texto bem miudinho e discreto */
+    font-size: 0.62rem;
     color: #dae3ef;
     font-weight: 500;
 }
-/* ========================================================================== */
 
 .dashboard-container h3 {
     margin-bottom: 20px;
