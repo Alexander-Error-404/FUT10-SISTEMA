@@ -1,288 +1,386 @@
+:root {
+    --bg-main: #05101e;         /* Azul escuro profundo (PSG) */
+    --bg-card: #0b2545;         /* Azul médio dos cartões */
+    --border-card: #13335c;     /* Bordas sutis */
+    --accent-red: #ba181b;      /* Vermelho vibrante (PSG) */
+    --text-light: #ffffff;
+    --text-muted: #dae3ef;
+    
+    /* Cores de Status das Mensalidades */
+    --color-pago: #10b981;      /* Verde total */
+    --color-parcial: #f59e0b;   /* Laranja (Pai folgado / Débito) */
+    --color-aberto: #ef4444;    /* Vermelho (Inadimplente real) */
+    --color-futuro: #1e3a8a;    /* Azul para meses futuros */
+    --color-bloqueado: #1e293b; /* Cinza escuro para meses anteriores à matrícula */
+}
+
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    -webkit-tap-highlight-color: transparent; /* Evita piscar azul no clique mobile */
 }
 
 body {
-    background-color: #05101e; /* Variante mais escura do azul */
-    color: #ffffff;
-    min-height: 100vh;
-    padding: 10px;
+    background-color: var(--bg-main);
+    color: var(--text-light);
+    padding-bottom: 50px;
 }
 
-.app-container {
-    width: 100%;
-    max-width: 480px; /* Limite ideal para visualização mobile centralizada */
-    margin: 0 auto;
-    padding-bottom: 30px;
-}
-
-/* Cabeçalho Mobile-First */
-.header-financeiro {
+/* Header Padrão PSG */
+.main-header {
+    background-color: var(--bg-card);
+    padding: 16px 20px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 15px 5px;
-    margin-bottom: 15px;
+    align-items: center;
+    border-bottom: 3px solid var(--accent-red);
 }
 
-.btn-voltar {
-    background-color: #13335c;
-    border: 1px solid #1d4474;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.header-financeiro h1 {
+.header-logo h1 {
     font-size: 1.4rem;
-    font-weight: 800;
-}
-
-.ano-atual {
-    font-size: 0.85rem;
-    background-color: #ba181b;
-    padding: 4px 8px;
-    border-radius: 6px;
     font-weight: bold;
 }
 
-/* Filtros */
-.filtros-container {
-    background-color: #0b2545; /* Azul oficial */
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+.header-logo .subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
 }
 
-.form-group-busca input {
-    width: 100%;
-    height: 44px;
-    background-color: #13335c;
-    border: 2px solid #1d4474;
-    border-radius: 8px;
-    color: white;
-    padding: 0 12px;
-    font-size: 0.95rem;
-    outline: none;
-    margin-bottom: 10px;
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
 }
 
-.filtros-linha {
-    display: flex;
-    gap: 10px;
-}
-
-.form-group-select {
-    flex: 1;
-}
-
-.form-group-select select {
-    width: 100%;
-    height: 40px;
-    background-color: #13335c;
-    border: 2px solid #1d4474;
-    border-radius: 8px;
-    color: white;
-    padding: 0 8px;
-    font-size: 0.85rem;
-    outline: none;
-}
-
-.form-group-busca input:focus,
-.form-group-select select:focus {
-    border-color: #ba181b; /* Vermelho em foco */
-}
-/* Cards de Mensalidade */
-.cards-lista {
+/* Filtros Avançados */
+.filter-section {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
-.aluno-card-financeiro {
-    background-color: #0b2545; /* Azul oficial */
+.search-box {
+    background: var(--bg-card);
+    border: 2px solid var(--border-card);
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 10px;
+}
+
+.search-box i {
+    color: var(--text-muted);
+    margin-right: 10px;
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 1rem;
+    color: white;
+}
+
+.filters-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.filter-group label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.filter-group select {
+    background: var(--bg-card);
+    border: 2px solid var(--border-card);
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    outline: none;
+}
+
+/* Lista de Alunos */
+.alunos-section h2 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.grid-alunos {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Cards de Alunos */
+.card-aluno {
+    background: var(--bg-card);
+    border: 2px solid var(--border-card);
     border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    border: 2px solid rgba(255, 255, 255, 0.05);
+    padding: 16px;
+}
+
+.card-aluno.inadimplente-border {
+    border-left: 5px solid var(--accent-red);
 }
 
 .card-header {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: 12px;
 }
 
-.foto-perfil-fin {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: #13335c;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    overflow: hidden;
-    border: 2px solid #1d4474;
-}
-
-.foto-perfil-fin img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.info-principal {
-    flex: 1;
-}
-
-.info-principal h4 {
+.info-aluno h3 {
     font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 2px;
-}
-
-.badge-turma-fin {
-    font-size: 0.75rem;
-    color: #dae3ef;
-    background-color: #13335c;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-.btn-cobrar-whatsapp {
-    background-color: #25d366; /* Verde do Zap */
-    color: white;
-    text-decoration: none;
-    padding: 8px;
-    border-radius: 50%;
-    font-size: 1.1rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
-}
-
-/* Status Geral */
-.status-geral-badge {
-    text-align: right;
-    font-size: 0.8rem;
     font-weight: bold;
-    padding: 4px 8px;
-    border-radius: 6px;
-    display: inline-block;
-    margin-bottom: 12px;
-}
-.status-em-dia { background-color: rgba(37, 211, 102, 0.2); color: #25d366; }
-.status-inadimplente { background-color: rgba(186, 24, 27, 0.2); color: #ba181b; }
-
-/* Grid de Meses (Scroll Horizontal para Celular) */
-.meses-grid-container {
-    overflow-x: auto;
-    padding-bottom: 8px;
-    margin-top: 5px;
 }
 
-.meses-grid-container::-webkit-scrollbar {
-    height: 4px;
-}
-.meses-grid-container::-webkit-scrollbar-thumb {
-    background: #1d4474;
-    border-radius: 4px;
+.info-aluno p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
 }
 
-.meses-linha {
+.card-actions {
     display: flex;
     gap: 8px;
-    width: max-content;
 }
 
-.mes-bloco {
+.btn-icon {
+    background: #13335c;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-icon:active {
+    background-color: var(--accent-red);
+}
+
+/* Grid de Rolagem dos Meses */
+.mensalidades-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 8px 0;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mensalidades-row::-webkit-scrollbar {
+    display: none;
+}
+
+/* Blocos dos Meses */
+.mes-box {
+    flex: 0 0 60px;
+    height: 68px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    width: 62px;
-}
-
-.quadradinho-mes {
-    width: 100%;
-    height: 38px;
-    border-radius: 6px;
-    border: none;
-    color: white;
-    font-weight: bold;
-    font-size: 0.85rem;
+    justify-content: space-between;
+    padding: 6px 2px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.1s;
+    user-select: none;
 }
-.quadradinho-mes:active { transform: scale(0.92); }
 
-/* Cores das Regras de Negócio */
-.mes-pre-matricula { background-color: #334155; color: #94a3b8; cursor: not-allowed; } /* Cinza */
-.mes-atrasado { background-color: #ba181b; box-shadow: 0 2px 6px rgba(186,24,27,0.4); } /* Vermelho */
-.mes-futuro { background-color: #e9c46a; color: #05101e; } /* Amarelo */
-.mes-pago { background-color: #25d366; box-shadow: 0 2px 6px rgba(37,211,102,0.4); } /* Verde */
+.mes-nome {
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
 
-.mes-subtexto {
-    font-size: 0.65rem;
-    color: #dae3ef;
+.mes-status-icon {
+    font-size: 0.85rem;
+}
+
+.mes-subtext {
+    font-size: 0.6rem;
     text-align: center;
     white-space: nowrap;
 }
 
-/* Modais e Bloqueio */
+/* Estilos de Status Customizados */
+.mes-box.status-bloqueado {
+    background-color: var(--color-bloqueado);
+    border: 1px solid #0f172a;
+    color: #475569;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.mes-box.status-futuro {
+    background-color: var(--color-futuro);
+    border: 1px solid #1d4ed8;
+    color: #93c5fd;
+}
+
+.mes-box.status-aberto {
+    background-color: #31131c;
+    border: 1px solid var(--accent-red);
+    color: #fca5a5;
+}
+
+.mes-box.status-pago {
+    background-color: #064e3b;
+    border: 1px solid var(--color-pago);
+    color: #a7f3d0;
+}
+
+.mes-box.status-parcial {
+    background-color: #451a03;
+    border: 1px solid var(--color-parcial);
+    color: #fde68a;
+}
+
+/* Modais e Botões */
+.btn-primary {
+    background-color: var(--accent-red);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-primary:active {
+    background-color: #921113;
+}
+
+.btn-block {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-success {
+    background-color: var(--color-pago);
+    color: white;
+}
+
 .modal {
     display: none;
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(5, 16, 30, 0.85);
-    justify-content: center; align-items: center;
-    padding: 20px; z-index: 1000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.modal.active {
+    display: flex;
 }
 
 .modal-content {
-    background-color: #0b2545;
-    border: 2px solid #1d4474;
-    border-radius: 15px;
-    padding: 20px; width: 100%; max-width: 360px;
+    background-color: var(--bg-card);
+    border: 2px solid var(--border-card);
+    width: 100%;
+    max-width: 450px;
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
 }
 
-.modal-content h3 { margin-bottom: 15px; font-weight: 800; }
-.detalhes-pagamento p { margin-bottom: 8px; font-size: 0.95rem; }
-.divisor-modal { border: 0; height: 1px; background: #1d4474; margin: 12px 0; }
-.valor-destaque { font-size: 1.2rem; color: #25d366; }
-
-.modal-botoes { display: flex; gap: 10px; margin-top: 20px; }
-.modal-botoes button {
-    flex: 1; height: 44px; border: none; border-radius: 8px;
-    font-weight: bold; cursor: pointer; font-size: 0.95rem;
+.close-modal {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 1.8rem;
+    color: var(--text-muted);
+    cursor: pointer;
 }
-.btn-primario { background-color: #25d366; color: white; }
-.btn-secundario { background-color: #13335c; color: white; border: 1px solid #1d4474; }
 
-#bloqueio-acesso {
-    background-color: #0b2545; padding: 30px 20px; border-radius: 15px;
-    text-align: center; max-width: 380px; margin: 100px auto;
-    border: 2px solid #ba181b; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+.form-group {
+    margin-bottom: 16px;
 }
-#bloqueio-acesso h2 { color: #ba181b; margin-bottom: 10px; }
-#bloqueio-acesso p { margin-bottom: 20px; color: #dae3ef; }
-#bloqueio-acesso button {
-    background-color: #ba181b; color: white; border: none;
-    padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: var(--text-muted);
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 12px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-card);
+    color: white;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+}
+
+.payment-info {
+    background-color: var(--bg-main);
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.badge-info {
+    display: inline-block;
+    background-color: #13335c;
+    color: var(--text-muted);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.suggested-value {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #93c5fd;
+    background-color: #1e3a8a;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.helper-text {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid var(--border-card);
+    margin: 16px 0;
 }

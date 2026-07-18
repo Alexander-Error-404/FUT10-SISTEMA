@@ -2,68 +2,138 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FUT10 - Controle de Mensalidades</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fut10 - Gestão de Mensalidades</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Trava de segurança para renderização via JS -->
-    <div id="bloqueio-acesso" style="display: none;">
-        <h2>Acesso Negado</h2>
-        <p>Apenas a Alessandra tem permissão para visualizar e gerenciar o financeiro.</p>
-        <button onclick="window.location.href='../dashboard/index.html'">Voltar ao Dashboard</button>
-    </div>
 
-    <div id="conteudo-pagina" class="app-container">
-        <!-- Cabeçalho Mobile-First -->
-        <header class="header-financeiro">
-            <button class="btn-voltar" onclick="window.location.href='../dashboard/index.html'">⬅ Voltar</button>
-            <h1>Mensalidades 💰</h1>
-            <span class="ano-atual">Ano: 2026</span>
-        </header>
+<!-- Cabeçalho Fixo (Padrão PSG / Dashboard) -->
+    <header class="main-header">
+        <div class="header-logo">
+            <h1>Fut10 ⚽</h1>
+            <span class="subtitle">Mensalidades</span>
+        </div>
+        <!-- Botão de Voltar para o Dashboard -->
+        <a href="../dashboard/index.html" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </header>
 
-        <!-- Seção de Filtros e Busca Inteligente -->
-        <section class="filtros-container">
-            <div class="form-group-busca">
-                <input type="text" id="busca-aluno" placeholder="🔎 Buscar aluno por nome...">
+    <main class="container">
+        <!-- Seção de Filtros -->
+        <section class="filter-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="busca-aluno" placeholder="Buscar aluno pelo nome...">
             </div>
-            <div class="filtros-linha">
-                <div class="form-group-select">
+            
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label for="filtro-turma"><i class="fas fa-filter"></i> Turma</label>
                     <select id="filtro-turma">
-                        <option value="">Todas as Turmas</option>
+                        <option value="todos">Todas as Turmas</option>
+                        <option value="1">1x na semana</option>
+                        <option value="2">2x na semana</option>
                     </select>
                 </div>
-                <div class="form-group-select">
+                <div class="filter-group">
+                    <label for="filtro-status"><i class="fas fa-exclamation-circle"></i> Situação</label>
                     <select id="filtro-status">
-                        <option value="">Todos os Status</option>
-                        <option value="INADIMPLENTE">🔴 Inadimplentes</option>
-                        <option value="EM_DIA">🟢 Em Dia</option>
+                        <option value="todos">Todos os Alunos</option>
+                        <option value="inadimplentes">Apenas Inadimplentes</option>
                     </select>
                 </div>
             </div>
         </section>
 
-        <!-- Lista de Cards de Alunos -->
-        <main id="lista-mensalidades" class="cards-lista">
-            <!-- Os cards serão criados aqui via JavaScript -->
-        </main>
+        <!-- Lista de Alunos -->
+        <section class="alunos-section">
+            <h2>Alunos Registrados</h2>
+            <div id="lista-alunos" class="grid-alunos">
+                <!-- Injetado pelo JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL: Cadastro / Edição de Aluno -->
+    <div id="modal-aluno" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="modal-aluno">&times;</span>
+            <h3 id="modal-aluno-titulo">Cadastrar Aluno</h3>
+            <form id="form-aluno">
+                <input type="hidden" id="aluno-id">
+                
+                <div class="form-group">
+                    <label for="aluno-nome">Nome Completo</label>
+                    <input type="text" id="aluno-nome" required placeholder="Ex: João Silva">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="aluno-frequencia">Frequência</label>
+                        <select id="aluno-frequencia" required>
+                            <option value="1">1x na semana</option>
+                            <option value="2" selected>2x na semana</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="aluno-irmao">Tem irmão treinando?</label>
+                        <select id="aluno-irmao" required>
+                            <option value="nao" selected>Não</option>
+                            <option value="sim">Sim</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="aluno-vencimento">Dia de Vencimento</label>
+                        <input type="number" id="aluno-vencimento" min="1" max="31" value="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="aluno-matricula">Data de Matrícula</label>
+                        <input type="date" id="aluno-matricula" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-block btn-success">Salvar Aluno</button>
+            </form>
+        </div>
     </div>
 
-    <!-- Modal de Confirmação de Pagamento -->
+    <!-- MODAL: Pagamento de Mensalidade -->
     <div id="modal-pagamento" class="modal">
         <div class="modal-content">
-            <h3>Confirmar Pagamento</h3>
-            <div class="detalhes-pagamento">
-                <p><strong>Aluno:</strong> <span id="modal-nome-aluno"></span></p>
-                <p><strong>Mês de Referência:</strong> <span id="modal-mes-nome"></span></p>
-                <hr class="divisor-modal">
-                <p><strong>Regra Aplicada:</strong> <span id="modal-regra"></span></p>
-                <p class="valor-destaque"><strong>Valor Calculado:</strong> R$ <span id="modal-valor">0,00</span></p>
+            <span class="close-modal" data-modal="modal-pagamento">&times;</span>
+            <h3>Registrar Pagamento</h3>
+            
+            <div class="payment-info">
+                <p><strong>Aluno:</strong> <span id="pay-aluno-nome">-</span></p>
+                <p><strong>Mês de Referência:</strong> <span id="pay-mes-nome">-</span></p>
+                <div class="badge-info" id="pay-regra-aplicada"></div>
             </div>
-            <div class="modal-botoes">
-                <button id="btn-cancelar-pagamento" class="btn-secundario">Cancelar</button>
-                <button id="btn-confirmar-pagamento" class="btn-primario">Confirmar Recebimento</button>
-            </div>
+
+            <hr>
+
+            <form id="form-pagamento">
+                <input type="hidden" id="pay-aluno-id">
+                <input type="hidden" id="pay-mes-index">
+                
+                <div class="form-group">
+                    <label>Valor Sugerido pelo Sistema</label>
+                    <div class="suggested-value" id="pay-valor-sugerido">R$ 0,00</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pay-valor-real">Valor Efetivamente Pago (R$)</label>
+                    <input type="number" id="pay-valor-real" step="0.01" min="0" required placeholder="0.00">
+                    <small class="helper-text">Se for menor que o esperado, ficará como status Parcial (Laranja).</small>
+                </div>
+
+                <button type="submit" class="btn-block btn-success"><i class="fas fa-check"></i> Confirmar Recebimento</button>
+            </form>
         </div>
     </div>
 

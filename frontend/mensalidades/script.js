@@ -1,331 +1,306 @@
-// 1. Verificação de Segurança Absoluta (Apenas Alessandra)
-const usuarioLogado = localStorage.getItem('fut10_usuario_logado');
-if (usuarioLogado !== 'alessandra') {
-    document.getElementById('conteudo-pagina').style.display = 'none';
-    document.getElementById('bloqueio-acesso').style.display = 'block';
-}
+// =========================================================
+// SISTEMA DE MENSALIDADES INTELIGENTES - FUT10 (PADRÃO PSG)
+// =========================================================
 
-// 2. Banco de Dados Local (Alunos e Histórico Financeiro)
-let alunos = JSON.parse(localStorage.getItem('fut10_alunos')) || [];
-let historicoFinanceiro = JSON.parse(localStorage.getItem('fut10_historico_financeiro')) || {};
+const MESES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+const STORAGE_ALUNOS = "fut10_alunos";
+const STORAGE_CAIXA = "fut10_caixa";
 
-// 3. Configuração de Valores Padrão (Conforme Regras A a D)
-const configValoresPadrao = {
-    mensalidade_1x: 100.00,
-    mensalidade_2x: 150.00,
-    desconto_irmao_1x: 15.00,
-    desconto_irmao_2x: 25.00,
-    // Taxas extras por atraso comercial de pagamento
-    acrescimo_dias_16_20: 10.00,
-    acrescimo_dias_21_30: 20.00
-};
+let alunos = JSON.parse(localStorage.getItem(STORAGE_ALUNOS)) || [];
+let caixa = JSON.parse(localStorage.getItem(STORAGE_CAIXA)) || [];
 
-// Inicializa configurações no localStorage se não existirem
-if (!localStorage.getItem('fut10_config_valores')) {
-    localStorage.setItem('fut10_config_valores', JSON.stringify(configValoresPadrao));
-}
-const configValores = JSON.parse(localStorage.getItem('fut10_config_valores'));
+const gridAlunos = document.getElementById("lista-alunos");
+const buscaInput = document.getElementById("busca-aluno");
+const filtroTurma = document.getElementById("filtro-turma");
+const filtroStatus = document.getElementById("filtro-status");
+const modalAluno = document.getElementById("modal-aluno");
+const modalPagamento = document.getElementById("modal-pagamento");
+const formAluno = document.getElementById("form-aluno");
+const formPagamento = document.getElementById("form-pagamento");
 
-// 4. Mapeamento de Meses do Ano Corrente (2026)
-const MESES_NOMES = [
-    "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", 
-    "Jul", "Ago", "Set", "Out", "Nov", "Dez"
-];
+document.querySelectorAll(".close-modal").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.getElementById(btn.dataset.modal).classList.remove("active");
+    });
+});
 
-// 5. Elementos da Interface
-const listaMensalidades = document.getElementById('lista-mensalidades');
-const buscaAluno = document.getElementById('busca-aluno');
-const filtroTurma = document.getElementById('filtro-turma');
-const filtroStatus = document.getElementById('filtro-status');
+// Calcula o preço dinâmico do dia interpretando o formato do cadastro
+function calcularValorEsperado(aluno, mesIndex) {
+    const hoje = new Date();
+    const diaAtual = hoje.getDate();
+    
+    // Identifica se o cadastro usa o texto longo ou o número isolado
+    let freq = 1;
+    const freqTexto = aluno.frequencia ? aluno.frequencia.toString().toLowerCase() : "";
+    const turmaTexto = aluno.turma ? aluno.turma.toString().toLowerCase() : "";
 
-// Elementos do Modal de Pagamento
-const modalPagamento = document.getElementById('modal-pagamento');
-const modalNomeAluno = document.getElementById('modal-nome-aluno');
-const modalMesNome = document.getElementById('modal-mes-nome');
-const modalRegra = document.getElementById('modal-regra');
-const modalValor = document.getElementById('modal-valor');
-const btnCancelar = document.getElementById('btn-cancelar-pagamento');
-const btnConfirmar = document.getElementById('btn-confirmar-pagamento');
-
-// Estado de controle do clique atual
-let pagamentoPendente = null;
-// 6. Motor Inteligente de Cálculo de Mensalidades (Regras A, B e C)
-function calcularMensalidadeInformativa(aluno, diaDoMes) {
+    if (freqTexto.includes("2x") || turmaTexto.includes("2x") || freqTexto === "2") {
+        freq = 2;
+    }
+    
+    // Trata a marcação de irmão vinda dos dois formatos de tela
+    const temIrmao = aluno.irmao === "sim" || aluno.temIrmao === true;
     let valorBase = 0;
-    let desconto = 0;
-    let acrescimo = 0;
-    let justificativa = "";
 
-    // Regra A: Frequência semanal
-    const eDuasVezes = aluno.frequencia && aluno.frequencia.includes('2x');
-    if (eDuasVezes) {
-        valorBase = configValores.mensalidade_2x;
-        justificativa += "Mensalidade 2x (R$ " + valorBase.toFixed(2) + ")";
-    } else {
-        valorBase = configValores.mensalidade_1x;
-        justificativa += "Mensalidade 1x (R$ " + valorBase.toFixed(2) + ")";
+    if (freq === 1) {
+        if (diaAtual <= 10) valorBase = 90;
+        else if (diaAtual <= 20) valorBase = 100;
+        else valorBase = 110;
+    } else { 
+        if (diaAtual <= 10) valorBase = 150;
+        else if (diaAtual <= 20) valorBase = 160;
+        else valorBase = 170;
     }
 
-    // Regra B: Desconto para irmãos
-    if (aluno.temIrmao) {
-        desconto = eDuasVezes ? configValores.desconto_irmao_2x : configValores.desconto_irmao_1x;
-        justificativa += " - Desconto Irmão (-R$ " + desconto.toFixed(2) + ")";
+    if (temIrmao) {
+        const desconto = freq === 1 ? 5 : 10;
+        valorBase = Math.max(0, valorBase - desconto);
     }
 
-    // Regra C: Janelas de Vencimento e Acréscimos por data
-    if (diaDoMes <= 10) {
-        justificativa += " [Pago até dia 10: Sem taxas]";
-    } else if (diaDoMes >= 16 && diaDoMes <= 20) {
-        acrescimo = configValores.acrescimo_dias_16_20;
-        justificativa += " + Taxa Dias 16-20 (+R$ " + acrescimo.toFixed(2) + ")";
-    } else if (diaDoMes >= 21 && diaDoMes <= 30) {
-        acrescimo = configValores.acrescimo_dias_21_30;
-        justificativa += " + Taxa Dias 21-30 (+R$ " + acrescimo.toFixed(2) + ")";
-    } else {
-        justificativa += " [Período padrão sem acréscimo extra]";
-    }
-
-    const valorFinal = valorBase - desconto + acrescimo;
-    return {
-        valor: Math.max(0, valorFinal),
-        regra: justificativa
-    };
+    return valorBase;
 }
-
-// 7. Determina o Status Visual de cada Mês (Cinza, Vermelho, Amarelo, Verde)
-function obterStatusMes(aluno, mesIndice) {
-    // Se já está pago no histórico, é VERDE
-    if (historicoFinanceiro[aluno.id] && historicoFinanceiro[aluno.id][mesIndice]) {
-        return 'PAGO';
-    }
-
-    const hoje = new Date(); // Ano corrente: 2026
-    const mesAtual = hoje.getMonth();
-
-    // Regra de Matrícula: Analisa quando o aluno entrou
-    const dataMatricula = new Date(aluno.matricula);
-    const anoMatricula = dataMatricula.getFullYear();
-    const mesMatricula = dataMatricula.getMonth();
-
-    // Se a matrícula foi depois de 2026 ou o mês avaliado é anterior ao mês de entrada
-    if (anoMatricula > 2026 || (anoMatricula === 2026 && mesIndice < mesMatricula)) {
-        return 'PRE_MATRICULA'; // CINZA
-    }
-
-    // Se o mês avaliado é maior que o mês atual, é futuro
-    if (mesIndice > mesAtual) {
-        return 'FUTURO'; // AMARELO
-    }
-
-    // Se não caiu em nenhuma regra anterior e não está pago, está vencido
-    return 'ATRASADO'; // VERMELHO
-}
-// 8. Determina a Situação Geral de Débito do Aluno (Regra de Inadimplência)
-function obterSituacaoFinanceiraGeral(aluno) {
-    // Regra F: Se o aluno está inativo na ficha técnica por 30 dias sem aula,
-    // ele não deve sumir, mas mantemos o status limpo se não houver débitos pendentes.
+// Analisa a situação do aluno em um mês específico
+function obterStatusMes(aluno, mesIndex) {
     const hoje = new Date();
     const mesAtual = hoje.getMonth();
+    const anoAtual = hoje.getFullYear();
 
-    // Varre todos os meses do início do ano até o mês corrente
-    for (let m = 0; m <= mesAtual; m++) {
-        const statusMes = obterStatusMes(aluno, m);
-        // Se houver qualquer mês marcado como atrasado (vermelho), ele está inadimplente
-        if (statusMes === 'ATRASADO') {
-            return 'INADIMPLENTE';
-        }
+    if (!aluno.matricula) {
+        aluno.matricula = new Date().toISOString().split('T')[0];
     }
-    return 'EM_DIA';
+
+    let dataMat;
+    if (aluno.matricula.includes('-')) {
+        dataMat = new Date(aluno.matricula + 'T00:00:00');
+    } else {
+        const partes = aluno.matricula.split('/');
+        dataMat = new Date(`${partes[2]}-${partes[1]}-${partes[0]}T00:00:00`);
+    }
+
+    const mesMatricula = dataMat.getMonth();
+    const anoMatricula = dataMat.getFullYear();
+    if (anoMatricula > anoAtual || (anoMatricula === anoAtual && mesIndex < mesMatricula)) {
+        return { classe: "status-bloqueado", icone: "🔒", subtexto: "Não Matric.", clicavel: false, inadimplente: false };
+    }
+
+    const hist = aluno.historicoPagamentos ? aluno.historicoPagamentos[mesIndex] : null;
+
+    if (hist && hist.status === "pago") {
+        return { classe: "status-pago", icone: "✓", subtexto: `R$ ${hist.pago.toFixed(0)}`, clicavel: true, inadimplente: false };
+    }
+
+    if (hist && hist.status === "parcial") {
+        const falta = hist.esperado - hist.pago;
+        return { classe: "status-parcial", icone: "⚠️", subtexto: `Falta R$ ${falta.toFixed(0)}`, clicavel: true, inadimplente: true };
+    }
+
+    if (mesIndex > mesAtual) {
+        return { classe: "status-futuro", icone: "⏳", subtexto: "Aguardando", clicavel: true, inadimplente: false };
+    }
+
+    const valorEsperado = calcularValorEsperado(aluno, mesIndex);
+    return { classe: "status-aberto", icone: "✏️", subtexto: `R$ ${valorEsperado.toFixed(0)}`, clicavel: true, inadimplente: true };
 }
 
-// 9. Monta e Atualiza o Dropdown de Filtro de Turmas Dinamicamente
-function atualizarFiltroTurmasFin() {
-    if (!filtroTurma) return;
-    const valorSelecionado = filtroTurma.value;
-    
-    // Limpa mantendo o padrão
-    filtroTurma.innerHTML = '<option value="">Todas as Turmas</option>';
-    
-    // Filtra e ordena nomes únicos de turmas
-    const turmasUnicas = [...new Set(alunos.map(a => a.turma.trim().toUpperCase()))].sort();
-    
-    turmasUnicas.forEach(turma => {
-        const option = document.createElement('option');
-        option.value = turma;
-        option.textContent = `Turma: ${turma}`;
-        filtroTurma.appendChild(option);
-    });
-    
-    filtroTurma.value = valorSelecionado;
+// Determina se o aluno está devendo
+function isAlunoInadimplente(aluno) {
+    if (!aluno.historicoPagamentos) return false;
+    for (let i = 0; i < 12; i++) {
+        const status = obterStatusMes(aluno, i);
+        if (status.inadimplente) return true;
+    }
+    return false;
 }
 
-// Ouvintes de eventos para busca em tempo real e filtros do polegar
-buscaAluno?.addEventListener('input', renderizarTelaFinanceira);
-filtroTurma?.addEventListener('change', renderizarTelaFinanceira);
-filtroStatus?.addEventListener('change', renderizarTelaFinanceira);
-// 10. Renderiza os Cards Financeiros na Tela com Foco em Performance Mobile
-function renderizarTelaFinanceira() {
-    if (!listaMensalidades) return;
-    listaMensalidades.innerHTML = '';
+function registrarNoCaixa(alunoNome, mesNome, valorPago) {
+    const hoje = new Date();
+    const novaTransacao = {
+        id: Date.now().toString(),
+        data: hoje.toISOString().split('T')[0],
+        tipo: "entrada",
+        categoria: "Mensalidade",
+        descricao: `Mensalidade - ${alunoNome} (${mesNome})`,
+        valor: parseFloat(valorPago),
+        status: "confirmado"
+    };
 
-    const termoBusca = buscaAluno?.value.toLowerCase() || '';
-    const turmaSelecionada = filtroTurma?.value.toUpperCase() || '';
-    const statusSelecionado = filtroStatus?.value || '';
+    caixa.push(novaTransacao);
+    localStorage.setItem(STORAGE_CAIXA, JSON.stringify(caixa));
+}
 
-    const alunosFiltrados = alunos.filter(aluno => {
-        const situacaoGeral = obterSituacaoFinanceiraGeral(aluno);
-        const atendeNome = aluno.nome.toLowerCase().includes(termoBusca);
-        const atendeTurma = !turmaSelecionada || aluno.turma.trim().toUpperCase() === turmaSelecionada;
-        const atendeStatus = !statusSelecionado || situacaoGeral === statusSelecionado;
+function salvarAlunos() {
+    localStorage.setItem(STORAGE_ALUNOS, JSON.stringify(alunos));
+}
+
+// Renderizar Alunos na Tela com Filtros Corrigidos
+function renderizarAlunos() {
+    alunos = JSON.parse(localStorage.getItem(STORAGE_ALUNOS)) || [];
+    gridAlunos.innerHTML = "";
+    
+    const termo = buscaInput.value.toLowerCase();
+    const turmaFiltro = filtroTurma.value ? filtroTurma.value.toLowerCase() : "todos";
+    const statusFiltro = filtroStatus.value;
+
+    const filtrados = alunos.filter(aluno => {
+        if (!aluno.historicoPagamentos) {
+            aluno.historicoPagamentos = Array(12).fill(null).map(() => ({ pago: 0, esperado: 0, status: "aberto" }));
+        }
+        
+        // ==================== CÓDIGO NOVO PARA COLOCAR NO LUGAR ====================
+const freqTexto = aluno.frequencia ? aluno.frequencia.toString().toLowerCase() : "";
+const turmaTexto = aluno.turma ? aluno.turma.toString().toLowerCase() : "";
+
+if (freqTexto.includes("2x") || turmaTexto.includes("2x") || freqTexto === "2") {
+    aluno.frequencia = "2";
+} else {
+    aluno.frequencia = "1";
+}
+// ===========================================================================
+
+        const nomeAluno = aluno.nome ? aluno.nome.toLowerCase() : "";
+        const atendeNome = nomeAluno.includes(termo);
+
+        const stringTurma = aluno.turma ? aluno.turma.toLowerCase() : "";
+        const stringFreq = aluno.frequencia ? aluno.frequencia.toString() : "";
+        
+        const atendeTurma = turmaFiltro === "todos" || 
+                            turmaFiltro === "" || 
+                            stringTurma.includes(turmaFiltro) || 
+                            stringFreq === turmaFiltro;
+
+        const atendeStatus = statusFiltro === "todos" || (statusFiltro === "inadimplentes" && isAlunoInadimplente(aluno));
 
         return atendeNome && atendeTurma && atendeStatus;
     });
-
-    if (alunosFiltrados.length === 0) {
-        listaMensalidades.innerHTML = '<p style="text-align:center;padding:20px;color:#dae3ef;">Nenhum aluno encontrado nos filtros.</p>';
+    if (filtrados.length === 0) {
+        gridAlunos.innerHTML = `<p style="text-align:center;color:var(--text-muted);padding:20px;">Nenhum aluno encontrado.</p>`;
         return;
     }
 
-    alunosFiltrados.forEach(aluno => {
-        const situacaoGeral = obterSituacaoFinanceiraGeral(aluno);
-        const classeStatusGeral = situacaoGeral === 'EM_DIA' ? 'status-em-dia' : 'status-inadimplente';
-        const textoStatusGeral = situacaoGeral === 'EM_DIA' ? '🟢 EM DIA' : '🔴 PENDENTE';
-        const numZap = aluno.whatsapp ? aluno.whatsapp.replace(/\D/g, '') : '';
+    filtrados.forEach(aluno => {
+        const isInadimplente = isAlunoInadimplente(aluno);
+        const card = document.createElement("div");
+        card.className = `card-aluno ${isInadimplente ? 'inadimplente-border' : ''}`;
 
-        const card = document.createElement('div');
-        card.className = 'aluno-card-financeiro';
-        
-        let htmlCard = `
+        const exibicaoFreq = (aluno.turma && aluno.turma.includes('2x')) || aluno.frequencia === "2" ? '2x' : '1x';
+
+        let html = `
             <div class="card-header">
-                <div class="foto-perfil-fin">${aluno.foto ? `<img src="${aluno.foto}">` : '👦'}</div>
-                <div class="info-principal">
-                    <h4>${aluno.nome}</h4>
-                    <span class="badge-turma-fin">Turma: ${aluno.turma.toUpperCase()}</span>
+                <div class="info-aluno">
+                    <h3>${aluno.nome || "Sem Nome"} ${isInadimplente ? '⚠️' : '✓'}</h3>
+                    <p>${exibicaoFreq} na semana | Vencimento: Dia ${aluno.vencimento || 10} | Irmão: ${aluno.irmao === 'sim' ? 'SIM' : 'NÃO'}</p>
+                    <p style="font-size:0.75rem; color:#94a3b8;">Matrícula: ${aluno.matricula.includes('-') ? aluno.matricula.split('-').reverse().join('/') : aluno.matricula}</p>
                 </div>
-                ${numZap ? `<a href="https://wa.me/55${numZap}?text=Olá!%20Aqui%20é%20da%20Escolinha%20FUT10.%20Gostaríamos%20de%20conversar%20sobre%20as%20mensalidades%20do(a)%20${encodeURIComponent(aluno.nome)}." target="_blank" class="btn-cobrar-whatsapp">💬</a>` : ''}
+                <div class="card-actions">
+                    <button class="btn-icon" onclick="prepararEdicao('${aluno.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn-icon" onclick="excluirAluno('${aluno.id}')" style="background-color:#7f1d1d;"><i class="fas fa-trash"></i></button>
+                </div>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="status-geral-badge ${classeStatusGeral}">${textoStatusGeral}</span>
-            </div>
-            <div class="meses-grid-container">
-                <div class="meses-linha">
+            <div class="mensalidades-row">
         `;
 
-        // Laço para gerar a barra horizontal dos 12 meses
-        for (let m = 0; m < 12; m++) {
-            const statusMes = obterStatusMes(aluno, m);
-            let classeClasse = 'mes-pre-matricula';
-            let textoBotao = MESES_NOMES[m];
-            
-            if (statusMes === 'PAGO') {
-                classeClasse = 'mes-pago';
-                textoBotao = '✓';
-            } else if (statusMes === 'ATRASADO') {
-                classeClasse = 'mes-atrasado';
-            } else if (statusMes === 'FUTURO') {
-                classeClasse = 'mes-futuro';
-            }
+        MESES.forEach((mes, index) => {
+            const status = obterStatusMes(aluno, index);
+            const acaoClique = status.clicavel ? `onclick="abrirPagamento('${aluno.id}', ${index})"` : "";
 
-            // Exibe o valor de referência base calculado (dia 10) abaixo do botão
-            const calculoReferencia = calcularMensalidadeInformativa(aluno, 10);
-            let subTexto = `R$ ${calculoReferencia.valor.toFixed(0)}`;
-
-            if (statusMes === 'PAGO') {
-                const dadosPagos = historicoFinanceiro[aluno.id][m];
-                subTexto = `R$ ${dadosPagos.valor.toFixed(0)} PAGO`;
-            } else if (statusMes === 'PRE_MATRICULA') {
-                subTexto = '-';
-            }
-
-            htmlCard += `
-                <div class="mes-bloco">
-                    <button class="quadradinho-mes ${classeClasse}" ${statusMes === 'PRE_MATRICULA' ? 'disabled' : ''} onclick="abrirModalPagamento('${aluno.id}', ${m}, '${statusMes}')">${textoBotao}</button>
-                    <span class="mes-subtexto">${MESES_NOMES[m]}<br>${subTexto}</span>
+            html += `
+                <div class="mes-box ${status.classe}" ${acaoClique}>
+                    <span class="mes-nome">${mes}</span>
+                    <span class="mes-status-icon">${status.icone}</span>
+                    <span class="mes-subtext">${status.subtexto}</span>
                 </div>
             `;
-        }
+        });
 
-        htmlCard += `</div></div>`;
-        card.innerHTML = htmlCard;
-        listaMensalidades.appendChild(card);
+        html += `</div>`;
+        card.innerHTML = html;
+        gridAlunos.appendChild(card);
     });
 }
-// 11. Controle do Modal de Pagamento e Registro no LocalStorage
-function abrirModalPagamento(alunoId, mesIndice, statusAtual) {
-    // Se o mês já estiver pago ou for pré-matrícula, bloqueia nova ação pelo clique
-    if (statusAtual === 'PAGO' || statusAtual === 'PRE_MATRICULA') return;
+
+// Abrir Modal de Pagamento (Pop-up)
+function abrirPagamento(alunoId, mesIndex) {
+    const aluno = alunos.find(a => a.id === alunoId);
+    if (!aluno) return;
+
+    const hist = aluno.historicoPagamentos ? aluno.historicoPagamentos[mesIndex] : null;
+    const valorEsperadoHoje = calcularValorEsperado(aluno, mesIndex);
+
+    document.getElementById("pay-aluno-id").value = alunoId;
+    document.getElementById("pay-mes-index").value = mesIndex;
+    document.getElementById("pay-aluno-nome").textContent = aluno.nome;
+    document.getElementById("pay-mes-nome").textContent = MESES[mesIndex];
+
+    const containerRegra = document.getElementById("pay-regra-aplicada");
+    const inputValorReal = document.getElementById("pay-valor-real");
+    const containerSugerido = document.getElementById("pay-valor-sugerido");
+
+    if (hist && hist.status === "parcial") {
+        const falta = hist.esperado - hist.pago;
+        containerRegra.textContent = `PAGAMENTO PARCIAL: Já pago R$ ${hist.pago.toFixed(2)}.`;
+        containerRegra.style.backgroundColor = "#451a03";
+        containerRegra.style.color = "#fde68a";
+        containerSugerido.textContent = `R$ ${falta.toFixed(2)}`;
+        inputValorReal.value = falta.toFixed(2);
+    } else {
+        const freqTexto = (aluno.turma && aluno.turma.includes('2x')) || aluno.frequencia === "2" ? "2x" : "1x";
+        const irmaoTexto = aluno.irmao === "sim" ? "com desconto" : "sem desconto";
+        containerRegra.textContent = `Preço do dia: Treino ${freqTexto} (${irmaoTexto})`;
+        containerRegra.style.backgroundColor = "#1e3a8a";
+        containerRegra.style.color = "#93c5fd";
+        containerSugerido.textContent = `R$ ${valorEsperadoHoje.toFixed(2)}`;
+        inputValorReal.value = valorEsperadoHoje.toFixed(2);
+    }
+
+    modalPagamento.classList.add("active");
+}
+// Salvar Pagamento no Formulário do Modal
+formPagamento.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const alunoId = document.getElementById("pay-aluno-id").value;
+    const mesIndex = parseInt(document.getElementById("pay-mes-index").value);
+    const valorPagoInput = parseFloat(document.getElementById("pay-valor-real").value);
 
     const aluno = alunos.find(a => a.id === alunoId);
     if (!aluno) return;
 
-    // Captura o dia atual da máquina no momento do recebimento (Regra C)
-    const dataHoje = new Date();
-    const diaDoMesAtual = dataHoje.getDate();
-
-    // Executa o cálculo exato com base no dia do clique
-    const calculo = calcularMensalidadeInformativa(aluno, diaDoMesAtual);
-
-    // Guarda o estado global do pagamento que está sendo processado
-    pagamentoPendente = {
-        alunoId: alunoId,
-        mesIndice: mesIndice,
-        valor: calculo.valor,
-        dataPagamento: dataHoje.toISOString().split('T')[0]
-    };
-
-    // Alimenta visualmente os campos do Modal
-    modalNomeAluno.textContent = aluno.nome;
-    modalMesNome.textContent = MESES_NOMES[mesIndice] + " / 2026";
-    modalRegra.textContent = calculo.regra;
-    modalValor.textContent = calculo.valor.toFixed(2);
-
-    modalPagamento.style.display = 'flex';
-}
-
-// Salva permanentemente a baixa da mensalidade
-btnConfirmar?.addEventListener('click', function() {
-    if (!pagamentoPendente) return;
-
-    const id = pagamentoPendente.alunoId;
-    const mes = pagamentoPendente.mesIndice;
-
-    // Inicializa a árvore de registros do aluno se não existir
-    if (!historicoFinanceiro[id]) {
-        historicoFinanceiro[id] = {};
+    if (!aluno.historicoPagamentos) {
+        aluno.historicoPagamentos = Array(12).fill(null).map(() => ({ pago: 0, esperado: 0, status: "aberto" }));
     }
 
-    // Grava as informações consolidadas da transação
-    historicoFinanceiro[id][mes] = {
-        valor: pagamentoPendente.valor,
-        data: pagamentoPendente.dataPagamento
-    };
+    let hist = aluno.historicoPagamentos[mesIndex];
+    const valorEsperadoHoje = calcularValorEsperado(aluno, mesIndex);
 
-    // Salva no LocalStorage e limpa o cache de controle
-    localStorage.setItem('fut10_historico_financeiro', JSON.stringify(historicoFinanceiro));
-    modalPagamento.style.display = 'none';
-    pagamentoPendente = null;
-
-    // Atualiza a tela em tempo real
-    renderizarTelaFinanceira();
-});
-
-// Cancelamento e Fechamento do Modal
-btnCancelar?.addEventListener('click', () => {
-    modalPagamento.style.display = 'none';
-    pagamentoPendente = null;
-});
-
-window.addEventListener('click', (e) => {
-    if (e.target === modalPagamento) {
-        modalPagamento.style.display = 'none';
-        pagamentoPendente = null;
+    if (!hist) {
+        hist = { pago: 0, esperado: 0, status: "aberto" };
+        aluno.historicoPagamentos[mesIndex] = hist;
     }
+
+    if (hist.status === "parcial") {
+        hist.pago += valorPagoInput;
+    } else {
+        hist.esperado = valorEsperadoHoje;
+        hist.pago = valorPagoInput;
+    }
+
+    if (hist.pago >= hist.esperado) {
+        hist.status = "pago";
+    } else {
+        hist.status = "parcial";
+    }
+
+    salvarAlunos();
+    registrarNoCaixa(aluno.nome, MESES[mesIndex], valorPagoInput);
+
+    modalPagamento.classList.remove("active");
+    renderizarAlunos();
 });
 
-// 12. Inicialização Automática da Página ao Carregar
-document.addEventListener('DOMContentLoaded', function() {
-    if (usuarioLogado === 'alessandra') {
-        atualizarFiltroTurmasFin();
-        renderizarTelaFinanceira();
-    }
-});
+// Eventos de Filtro imediato e inicialização
+buscaInput.addEventListener("input", renderizarAlunos);
+filtroTurma.addEventListener("change", renderizarAlunos);
+filtroStatus.addEventListener("change", renderizarAlunos);
+
+// Inicializa a tela desenhando os cards salvos
+renderizarAlunos();

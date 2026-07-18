@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('nome-usuario').textContent = nomeExibicao;
 
-    // Regra de restrição de abas por perfil original
     if (usuarioLogado === 'alessandra') {
         document.querySelectorAll('.menu-vinicius').forEach(card => card.classList.add('ocultar'));
     } else if (usuarioLogado === 'vinicius') {
@@ -23,11 +22,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Calcula dias desde o último registro para checagem de inatividade
 function diasSemAula(aluno) {
     const referencia = aluno.ultimaPresenca || aluno.matricula;
     if (!referencia) return 999;
-    const dataPassada = new Date(referencia);
+    const dataPassada = new Date(referencia + 'T00:00:00');
     const hoje = new Date();
     dataPassada.setHours(0,0,0,0);
     hoje.setHours(0,0,0,0);
@@ -38,56 +36,60 @@ function calcularEExibirIndicadores() {
     const dadosAlunos = JSON.parse(localStorage.getItem('fut10_alunos')) || [];
     document.getElementById('kpi-alunos').textContent = dadosAlunos.length;
 
-    const historicoFin = JSON.parse(localStorage.getItem('fut10_historico_financeiro')) || {};
     const hoje = new Date();
     const mesAtualIndice = hoje.getMonth(); 
     const anoAtual = hoje.getFullYear();
     let contagemInadimplentes = 0;
 
     dadosAlunos.forEach(aluno => {
-        if (!aluno || !aluno.matricula || !aluno.id) return;
+        if (!aluno || !aluno.id) return;
         
-        // Regra F: Se tiver 30 dias sem aula, o cadastro está inativo e não deve gerar cobrança nova
+        // Aluno inativo não conta como inadimplente ativo
         if (diasSemAula(aluno) >= 30) return;
 
-        // Analisa a data de matrícula do aluno
+        // Se o histórico não existe, inicializa para não quebrar o dashboard
+        const histPagamentos = aluno.historicoPagamentos || Array(12).fill(null).map(() => ({ pago: 0, esperado: 0, status: "aberto" }));
+
         let dataMat;
-        if (aluno.matricula.includes('-')) {
-            dataMat = new Date(aluno.matricula);
-        } else if (aluno.matricula.includes('/')) {
-            const partes = aluno.matricula.split('/');
-            dataMat = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+        if (aluno.matricula) {
+            if (aluno.matricula.includes('-')) {
+                dataMat = new Date(aluno.matricula + 'T00:00:00');
+            } else {
+                const partes = aluno.matricula.split('/');
+                dataMat = new Date(`${partes[2]}-${partes[1]}-${partes[0]}T00:00:00`);
+            }
         } else {
-            return;
+            dataMat = new Date(); // assume hoje se não tiver
         }
 
         const anoMatricula = dataMat.getFullYear();
         const mesMatricula = dataMat.getMonth();
 
-        // Verifica os meses atrasados desde a data da matrícula até o mês corrente do ano atual
+        // Checar do mês de matrícula até o mês atual por inadimplências
         for (let m = 0; m <= mesAtualIndice; m++) {
+            // Se o mês m analisado for anterior à data em que o aluno se matriculou, não conta
             if (anoMatricula > anoAtual || (anoMatricula === anoAtual && m < mesMatricula)) {
-                continue; // Mês anterior à matrícula não gera inadimplência
+                continue; 
             }
 
-            // Verifica se este mês está quitado no histórico financeiro
-            const pago = historicoFin[aluno.id] && historicoFin[aluno.id][m];
-            if (!pago) {
+            const hist = histPagamentos[m];
+            
+            // É inadimplente se está totalmente em aberto, ou se pagou de forma "parcial" (o caso dos pais folgados)
+            if (!hist || hist.status === "aberto" || hist.status === "parcial") {
                 contagemInadimplentes++;
-                break; // Se achou ao menos um mês atrasado, o aluno já é marcado como inadimplente
+                break; // Se encontrou uma pendência em qualquer mês válido, ele é inadimplente geral
             }
         }
     });
     
     document.getElementById('kpi-inadimplentes').textContent = contagemInadimplentes;
 
-    // 3. Itens a acabar na Cantina
+    // Cantina
     const dadosEstoque = JSON.parse(localStorage.getItem('fut10_estoque_cantina')) || [];
     const itensCriticos = dadosEstoque.filter(item => item && item.quantidade <= (item.minimo || 5)).length;
     document.getElementById('kpi-estoque').textContent = itensCriticos;
 }
 
-// Evento de Logout
 document.getElementById('btn-sair')?.addEventListener('click', function() {
     localStorage.removeItem('fut10_usuario_logado');
     localStorage.removeItem('fut10_nome_exibicao');
